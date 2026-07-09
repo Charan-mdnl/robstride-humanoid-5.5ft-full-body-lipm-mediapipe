@@ -1,0 +1,94 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz — matches mujoco timestep 0.002s
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    lower_body_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    torso_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    left_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+# ── Lower body: 12 joints (6 per leg) ─────────────────────────────────────────
+lower_body_controller:
+  ros__parameters:
+    joints:
+      - hip_pitch_r
+      - hip_roll_r
+      - thigh_yaw_r
+      - knee_pitch_r
+      - ankle_pitch_r
+      - ankle_roll_r
+      - hip_pitch_l
+      - hip_roll_l
+      - thigh_yaw_l
+      - knee_pitch_l
+      - ankle_pitch_l
+      - ankle_roll_l
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+    goal_time: 0.0
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 0.0
+
+# ── Torso: 1 joint ─────────────────────────────────────────────────────────────
+torso_controller:
+  ros__parameters:
+    joints:
+      - torso_yaw
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+    goal_time: 0.0
+
+# ── Left arm: 4 joints ─────────────────────────────────────────────────────────
+left_arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pitch_l
+      - shoulder_roll_l
+      - elbow_yaw_l
+      - elbow_pitch_l
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+    goal_time: 0.0
+
+# ── Right arm: 4 joints ────────────────────────────────────────────────────────
+right_arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pitch_r
+      - shoulder_roll_r
+      - elbow_yaw_r
+      - elbow_pitch_r
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+    goal_time: 0.0

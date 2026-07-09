@@ -1,0 +1,145 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    lower_body_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    torso_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    left_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    right_hand_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    left_hand_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+lower_body_controller:
+  ros__parameters:
+    joints:
+      - hip_pitch_r
+      - hip_roll_r
+      - thigh_yaw_r
+      - knee_pitch_r
+      - ankle_pitch_r
+      - ankle_roll_r
+      - hip_pitch_l
+      - hip_roll_l
+      - thigh_yaw_l
+      - knee_pitch_l
+      - ankle_pitch_l
+      - ankle_roll_l
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+
+torso_controller:
+  ros__parameters:
+    joints:
+      - torso_yaw
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+
+right_arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pitch_r
+      - shoulder_roll_r
+      - elbow_yaw_r
+      - elbow_pitch_r
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+
+left_arm_controller:
+  ros__parameters:
+    joints:
+      - shoulder_pitch_l
+      - shoulder_roll_l
+      - elbow_yaw_l
+      - elbow_pitch_l
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+
+right_hand_controller:
+  ros__parameters:
+    joints:
+      - hand_roll_r
+      - R_thumb_yaw
+      - R_thumb_cmc
+      - R_thumb_mcp
+      - R_thumb_ip
+      - R_index_mcp
+      - R_index_pip
+      - R_index_dip
+      - R_middle_mcp
+      - R_middle_pip
+      - R_middle_dip
+      - R_ring_mcp
+      - R_ring_pip
+      - R_ring_dip
+      - R_pinky_mcp
+      - R_pinky_pip
+      - R_pinky_dip
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true
+
+left_hand_controller:
+  ros__parameters:
+    joints:
+      - hand_roll_l
+      - L_thumb_yaw
+      - L_thumb_cmc
+      - L_thumb_mcp
+      - L_thumb_ip
+      - L_index_mcp
+      - L_index_pip
+      - L_index_dip
+      - L_middle_mcp
+      - L_middle_pip
+      - L_middle_dip
+      - L_ring_mcp
+      - L_ring_pip
+      - L_ring_dip
+      - L_pinky_mcp
+      - L_pinky_pip
+      - L_pinky_dip
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    open_loop_control: true
+    allow_nonzero_velocity_at_trajectory_end: true

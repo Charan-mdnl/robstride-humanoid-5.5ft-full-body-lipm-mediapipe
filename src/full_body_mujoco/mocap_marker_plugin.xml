@@ -1,0 +1,7 @@
+<library path="mocap_marker_plugin">
+  <class name="full_body_mujoco/MujocoMarkerPlugin"
+         type="full_body_mujoco::MujocoMarkerPlugin"
+         base_class_type="mujoco_ros2_control_plugins::MuJoCoROS2ControlPluginBase">
+    <description>Moves MuJoCo mocap bodies to match /nr_ik_test/markers in pelvis frame.</description>
+  </class>
+</library>

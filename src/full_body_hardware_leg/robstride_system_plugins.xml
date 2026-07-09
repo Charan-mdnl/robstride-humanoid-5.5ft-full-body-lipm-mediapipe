@@ -1,0 +1,5 @@
+<library path="robstride_system">
+    <class name="full_body_hardware_leg/RobStrideSystem"
+        type="full_body_hardware::RobStrideSystem"
+        base_class_type="hardware_interface::SystemInterface" />
+</library>

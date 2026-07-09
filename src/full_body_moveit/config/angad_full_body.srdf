@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot name="angad_full_body">
+    <virtual_joint name="base_joint" type="fixed" parent_frame="world" child_link="base_link" />
+
+    <group name="right_arm">
+        <chain base_link="torso" tip_link="forearm_r" />
+    </group>
+    <group name="left_arm">
+        <chain base_link="torso" tip_link="forearm_l" />
+    </group>
+    <group name="right_leg">
+        <chain base_link="pelvis" tip_link="foot_r" />
+    </group>
+    <group name="left_leg">
+        <chain base_link="pelvis" tip_link="foot_l" />
+    </group>
+    <group name="torso">
+        <chain base_link="pelvis" tip_link="torso" />
+    </group>
+</robot>

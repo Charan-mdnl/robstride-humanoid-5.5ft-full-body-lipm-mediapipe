@@ -1,0 +1,356 @@
+<?xml version="1.0"?>
+<!--
+  full_body.ros2_control.xacro
+  =============================
+  ros2_control hardware interface for the full Angad humanoid (lower + upper body).
+
+  Two hardware blocks are used:
+    1. real_motors  — RobStrideSystem: shoulder_pitch_r (id=2) + shoulder_roll_r (id=1)
+    2. ${name}_fake — FakeSystem: all remaining joints
+
+  Joint names MUST match the joint names in angad_full_body.xml exactly.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="full_body_hardware_ros2_control" params="name">
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Helper macro: a position-controlled joint (used in both blocks)
+             ═══════════════════════════════════════════════════════════════════ -->
+        <xacro:macro name="ctrl_joint" params="joint_name lower upper">
+            <joint name="${joint_name}">
+                <command_interface name="position">
+                    <param name="min">${lower}</param>
+                    <param name="max">${upper}</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+        </xacro:macro>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Block 1 — REAL MOTORS (RobStrideSystem, CAN)
+             Two RS-03 actuators on can0.
+             ═══════════════════════════════════════════════════════════════════ -->
+        <ros2_control name="real_motors" type="system">
+
+            <hardware>
+                <plugin>full_body_hardware_leg/RobStrideSystem</plugin>
+                <param name="can_interface">can0</param>
+            </hardware>
+            <!-- shoulder_pitch_l: CAN id=2, RS-03 -->
+            <joint name="hip_pitch_l">
+                <param name="motor_id">32</param>
+                <param name="motor_model">rs04</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">3.5</param>
+                <param name="length">0.25</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_l: CAN id=1, RS-03 -->
+            <joint name="hip_roll_l">
+                <param name="motor_id">31</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">3.5</param>
+                <param name="length">0.25</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <!-- <param name="invert">true</param> -->
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="thigh_yaw_l">
+                <param name="motor_id">33</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=1, RS-03 -->
+            <joint name="knee_pitch_l">
+                <param name="motor_id">34</param>
+                <param name="motor_model">rs04</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+<joint name="ankle_pitch_l">
+                <param name="motor_id">35</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.6981</param>
+                    <param name="max">0.6981</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="ankle_roll_l">
+                <param name="motor_id">36</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can5</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.3491</param>
+                    <param name="max">0.3491</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <!-- shoulder_pitch_r: CAN id=2, RS-03 -->
+            <joint name="hip_pitch_r">
+                <param name="motor_id">22</param>
+                <param name="motor_model">rs04</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">3.5</param>
+                <param name="length">0.25</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=1, RS-03 -->
+            <joint name="hip_roll_r">
+                <param name="motor_id">21</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">3.5</param>
+                <param name="length">0.25</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <!-- <param name="invert">true</param> -->
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="thigh_yaw_r">
+                <param name="motor_id">23</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=1, RS-03 -->
+            <joint name="knee_pitch_r">
+                <param name="motor_id">24</param>
+                <param name="motor_model">rs04</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+<joint name="ankle_pitch_r">
+                <param name="motor_id">25</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.6981</param>
+                    <param name="max">0.6981</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="ankle_roll_r">
+                <param name="motor_id">26</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can4</param>
+                <param name="mass">2.0</param>
+                <param name="length">0.20</param>
+                <param name="theta_offset">0.0</param>
+                <param name="inertia">3.5</param>
+                <param name="e_nominal">0.1</param>
+                <param name="kd_max">100.0</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.3491</param>
+                    <param name="max">0.3491</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+        </ros2_control>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Block 2 — FAKE SYSTEM (all remaining joints)
+             Swap this block's plugin for RobStrideSystem entries as more
+             real motors are added during deployment.
+             ═══════════════════════════════════════════════════════════════════ -->
+        <ros2_control name="${name}_fake" type="system">
+
+            <hardware>
+                <plugin>full_body_hardware_leg/FakeSystem</plugin>
+            </hardware>
+
+            <!-- ── Lower body ── -->
+            <!-- <xacro:ctrl_joint joint_name="ankle_pitch_r" lower="-0.6981" upper="0.6981" />
+            <xacro:ctrl_joint joint_name="ankle_roll_r" lower="-0.3491" upper="0.3491" /> -->
+
+            <!-- <xacro:ctrl_joint joint_name="ankle_pitch_l" lower="-0.6981" upper="0.6981" />
+            <xacro:ctrl_joint joint_name="ankle_roll_l" lower="-0.3491" upper="0.3491" /> -->
+
+            <!-- ── Torso ── -->
+            <xacro:ctrl_joint joint_name="torso_yaw" lower="-3.1416" upper="3.1416" />
+
+            <!-- ── Right arm (remaining) ── -->
+            <xacro:ctrl_joint joint_name="shoulder_pitch_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="shoulder_roll_r" lower="-3.3161" upper="0.0873" />
+            <xacro:ctrl_joint joint_name="elbow_yaw_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="elbow_pitch_r" lower="-2.5307" upper="0.0" />
+            <!-- ── Left arm ── -->
+            <xacro:ctrl_joint joint_name="shoulder_pitch_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="shoulder_roll_l" lower="-3.3161" upper="0.0873" />
+            <xacro:ctrl_joint joint_name="elbow_yaw_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="elbow_pitch_l" lower="-2.5307" upper="0.0" />
+
+        </ros2_control>
+
+    </xacro:macro>
+
+</robot>

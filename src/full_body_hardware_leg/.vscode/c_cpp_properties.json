@@ -1,0 +1,42 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/me/clean_ws/install/full_body_mujoco/include/**",
+        "/home/me/clean_ws/install/full_body_hardware_leg/include/**",
+        "/home/me/clean_ws/install/full_body_hardware/include/**",
+        "/home/me/ros2_ws/install/xarm_planner/include/**",
+        "/home/me/ros2_ws/install/xarm_gazebo/include/**",
+        "/home/me/ros2_ws/install/xarm_controller/include/**",
+        "/home/me/ros2_ws/install/xarm_api/include/**",
+        "/home/me/ros2_ws/install/xarm_msgs/include/**",
+        "/home/me/ros2_ws/install/stereo_image_proc/include/**",
+        "/home/me/ros2_ws/install/image_proc/include/**",
+        "/home/me/ros2_ws/install/tracetools_image_pipeline/include/**",
+        "/home/me/ros2_ws/install/realsense_gazebo_plugin/include/**",
+        "/home/me/ros2_ws/install/realsense2_camera/include/**",
+        "/home/me/ros2_ws/install/realsense2_camera_msgs/include/**",
+        "/home/me/ros2_ws/install/image_view/include/**",
+        "/home/me/ros2_ws/install/image_rotate/include/**",
+        "/home/me/ros2_ws/install/image_publisher/include/**",
+        "/home/me/ros2_ws/install/depth_image_proc/include/**",
+        "/opt/ros/humble/include/**",
+        "/home/me/clean_ws/src/full_body_hardware/include/**",
+        "/home/me/clean_ws/src/full_body_hardware_leg/include/**",
+        "/home/me/clean_ws/src/lower_body/include/**",
+        "/home/me/clean_ws/src/upper_moveit_scripts/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

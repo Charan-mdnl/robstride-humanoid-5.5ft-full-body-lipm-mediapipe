@@ -1,0 +1,126 @@
+cmake_minimum_required(VERSION 3.8)
+project(full_body_mujoco)
+
+find_package(ament_cmake REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
+find_package(rosidl_default_generators REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
+find_package(urdf REQUIRED)
+find_package(trajectory_msgs REQUIRED)
+find_package(pinocchio REQUIRED)
+find_package(Eigen3 REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(mujoco_ros2_control_plugins REQUIRED)
+find_package(glfw3 REQUIRED)
+
+# ── MuJoCo marker plugin (shared library loaded by mujoco_ros2_control) ──────
+add_library(mocap_marker_plugin SHARED src/mocap_marker_plugin.cpp)
+ament_target_dependencies(mocap_marker_plugin
+  rclcpp pluginlib mujoco_ros2_control_plugins visualization_msgs)
+install(TARGETS mocap_marker_plugin DESTINATION lib)
+pluginlib_export_plugin_description_file(
+  mujoco_ros2_control_plugins mocap_marker_plugin.xml)
+install(FILES mocap_marker_plugin.xml DESTINATION share/${PROJECT_NAME})
+
+
+install(DIRECTORY
+  config
+  launch
+  urdf
+  scripts
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Python scripts
+install(PROGRAMS
+  scripts/simple_ik_viz.py
+  scripts/mujoco_marker_viz.py
+  scripts/mujoco_marker_sync.py
+  scripts/mujoco_ik_markers.py
+  scripts/hold_standing_pose.py
+  scripts/foot_force_array_publisher.py
+  scripts/foot_force_array_publisher_custom.py
+  scripts/ik_sphere_viz.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# ── MuJoCo physics viewer (C++) ───────────────────────────────────────────
+# Find MuJoCo from pip install location
+execute_process(
+  COMMAND python3 -c "import mujoco; import os; print(os.path.dirname(mujoco.__file__))"
+  OUTPUT_VARIABLE MUJOCO_PYTHON_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ERROR_QUIET
+)
+
+if(MUJOCO_PYTHON_DIR)
+  add_executable(ik_mujoco_viewer scripts/ik_mujoco_viewer.cpp)
+  target_include_directories(ik_mujoco_viewer PRIVATE ${MUJOCO_PYTHON_DIR}/include)
+  ament_target_dependencies(ik_mujoco_viewer
+    rclcpp sensor_msgs visualization_msgs)
+  target_link_libraries(ik_mujoco_viewer
+    ${MUJOCO_PYTHON_DIR}/libmujoco.so.3.6.0
+    glfw
+  )
+  install(TARGETS ik_mujoco_viewer DESTINATION lib/${PROJECT_NAME})
+  message(STATUS "Building MuJoCo viewer with MuJoCo from ${MUJOCO_PYTHON_DIR}")
+else()
+  message(WARNING "MuJoCo Python package not found, skipping ik_mujoco_viewer")
+endif()
+
+
+# C++ nodes
+add_executable(lipm_fk scripts/lipm_fk.cpp)
+ament_target_dependencies(lipm_fk
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs pinocchio visualization_msgs)
+install(TARGETS lipm_fk DESTINATION lib/${PROJECT_NAME})
+
+add_executable(backup scripts/backup.cpp)
+ament_target_dependencies(backup
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs pinocchio visualization_msgs)
+install(TARGETS backup DESTINATION lib/${PROJECT_NAME})
+
+add_executable(kajita_walker scripts/kajita_walker.cpp)
+ament_target_dependencies(kajita_walker
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs pinocchio visualization_msgs)
+target_link_libraries(kajita_walker Eigen3::Eigen)
+install(TARGETS kajita_walker DESTINATION lib/${PROJECT_NAME})
+
+add_executable(zmp_control scripts/zmp_control.cpp)
+ament_target_dependencies(zmp_control
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs pinocchio visualization_msgs)
+target_link_libraries(zmp_control Eigen3::Eigen)
+install(TARGETS zmp_control DESTINATION lib/${PROJECT_NAME})
+
+add_executable(zmp_control_dcm scripts/zmp_control_dcm.cpp)
+ament_target_dependencies(zmp_control_dcm
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs pinocchio visualization_msgs)
+target_link_libraries(zmp_control_dcm Eigen3::Eigen)
+install(TARGETS zmp_control_dcm DESTINATION lib/${PROJECT_NAME})
+
+add_executable(lipm_walker scripts/lipm_walker.cpp)
+ament_target_dependencies(lipm_walker
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs visualization_msgs)
+target_link_libraries(lipm_walker Eigen3::Eigen)
+install(TARGETS lipm_walker DESTINATION lib/${PROJECT_NAME})
+
+add_executable(nr_ik_test scripts/nr_ik_test.cpp)
+ament_target_dependencies(nr_ik_test
+  rclcpp std_msgs sensor_msgs geometry_msgs tf2_ros tf2_geometry_msgs urdf trajectory_msgs visualization_msgs)
+target_link_libraries(nr_ik_test Eigen3::Eigen)
+install(TARGETS nr_ik_test DESTINATION lib/${PROJECT_NAME})
+
+# Message generation
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/FootSensor.msg"
+  "msg/FootSensorArray.msg"
+)
+
+ament_export_dependencies(rosidl_default_runtime)
+ament_package()

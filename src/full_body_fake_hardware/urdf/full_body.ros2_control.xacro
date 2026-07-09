@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="full_body_fake_ros2_control" params="name">
+
+    <xacro:macro name="ctrl_joint" params="joint_name lower upper">
+      <joint name="${joint_name}">
+        <command_interface name="position">
+          <param name="min">${lower}</param>
+          <param name="max">${upper}</param>
+        </command_interface>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+      </joint>
+    </xacro:macro>
+
+    <ros2_control name="${name}" type="system">
+
+      <hardware>
+        <plugin>mock_components/GenericSystem</plugin>
+      </hardware>
+
+      <!-- ── Lower body — right leg ── -->
+      <xacro:ctrl_joint joint_name="hip_pitch_r"   lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="hip_roll_r"    lower="-2.35"   upper="0.292"  />
+      <xacro:ctrl_joint joint_name="thigh_yaw_r"   lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="knee_pitch_r"  lower="-1.5708" upper="0.0"    />
+      <xacro:ctrl_joint joint_name="ankle_pitch_r" lower="-0.6981" upper="0.6981" />
+      <xacro:ctrl_joint joint_name="ankle_roll_r"  lower="-0.3491" upper="0.3491" />
+
+      <!-- ── Lower body — left leg ── -->
+      <xacro:ctrl_joint joint_name="hip_pitch_l"   lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="hip_roll_l"    lower="-0.292"  upper="2.35"   />
+      <xacro:ctrl_joint joint_name="thigh_yaw_l"   lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="knee_pitch_l"  lower="-1.5708" upper="0.0"    />
+      <xacro:ctrl_joint joint_name="ankle_pitch_l" lower="-0.6981" upper="0.6981" />
+      <xacro:ctrl_joint joint_name="ankle_roll_l"  lower="-0.3491" upper="0.3491" />
+
+      <!-- ── Torso ── -->
+      <xacro:ctrl_joint joint_name="torso_yaw" lower="-3.1416" upper="3.1416" />
+
+      <!-- ── Right arm ── -->
+      <xacro:ctrl_joint joint_name="shoulder_pitch_r" lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="shoulder_roll_r"  lower="-0.0873" upper="3.3161" />
+      <xacro:ctrl_joint joint_name="elbow_yaw_r"      lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="elbow_pitch_r"    lower="-2.5307" upper="0.0"    />
+
+      <!-- ── Left arm ── -->
+      <xacro:ctrl_joint joint_name="shoulder_pitch_l" lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="shoulder_roll_l"  lower="-3.3161" upper="0.0873" />
+      <xacro:ctrl_joint joint_name="elbow_yaw_l"      lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="elbow_pitch_l"    lower="-2.5307" upper="0.0"    />
+
+      <!-- ── Right hand ── -->
+      <xacro:ctrl_joint joint_name="hand_roll_r"    lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="R_thumb_yaw"    lower="-0.60"   upper="0.75"   />
+      <xacro:ctrl_joint joint_name="R_thumb_cmc"    lower="-0.60"   upper="0.70"   />
+      <xacro:ctrl_joint joint_name="R_thumb_mcp"    lower="-1.57"   upper="0.00"   />
+      <xacro:ctrl_joint joint_name="R_thumb_ip"     lower="-0.95"   upper="0.13"   />
+      <xacro:ctrl_joint joint_name="R_index_mcp"    lower="-0.60"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_index_pip"    lower="-0.20"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_index_dip"    lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="R_middle_mcp"   lower="-0.50"   upper="1.70"   />
+      <xacro:ctrl_joint joint_name="R_middle_pip"   lower="-0.13"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_middle_dip"   lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="R_ring_mcp"     lower="-0.50"   upper="1.70"   />
+      <xacro:ctrl_joint joint_name="R_ring_pip"     lower="-0.13"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_ring_dip"     lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="R_pinky_mcp"    lower="-0.50"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_pinky_pip"    lower="-0.13"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="R_pinky_dip"    lower="-0.30"   upper="1.80"   />
+
+      <!-- ── Left hand ── -->
+      <xacro:ctrl_joint joint_name="hand_roll_l"    lower="-3.1416" upper="3.1416" />
+      <xacro:ctrl_joint joint_name="L_thumb_yaw"    lower="-0.75"   upper="0.60"   />
+      <xacro:ctrl_joint joint_name="L_thumb_cmc"    lower="-0.60"   upper="0.70"   />
+      <xacro:ctrl_joint joint_name="L_thumb_mcp"    lower="0.00"    upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_thumb_ip"     lower="-0.13"   upper="0.95"   />
+      <xacro:ctrl_joint joint_name="L_index_mcp"    lower="-0.50"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_index_pip"    lower="-0.20"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_index_dip"    lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="L_middle_mcp"   lower="-0.50"   upper="1.70"   />
+      <xacro:ctrl_joint joint_name="L_middle_pip"   lower="-0.20"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_middle_dip"   lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="L_ring_mcp"     lower="-0.50"   upper="1.70"   />
+      <xacro:ctrl_joint joint_name="L_ring_pip"     lower="-0.20"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_ring_dip"     lower="-0.30"   upper="1.90"   />
+      <xacro:ctrl_joint joint_name="L_pinky_mcp"    lower="-0.50"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_pinky_pip"    lower="-0.20"   upper="1.57"   />
+      <xacro:ctrl_joint joint_name="L_pinky_dip"    lower="-0.30"   upper="1.80"   />
+
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

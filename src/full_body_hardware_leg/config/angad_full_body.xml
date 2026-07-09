@@ -1,0 +1,757 @@
+<!--
+  angad_full_body.xml
+  =====================
+  Complete Angad humanoid robot — lower body (XP_robot meshes) + upper body (XP_robot meshes)
+  integrated into a single MuJoCo scene for use with mujoco_ros2_control.
+
+  COLLISION STRATEGY
+  ──────────────────
+  MuJoCo only collides geoms whose (contype1 & conaffinity2) != 0.
+
+  Groups used:
+    contype=1 / conaffinity=1  → ground plane (collides with feet only)
+    contype=2 / conaffinity=2  → foot sole capsules (collide with ground only)
+    contype=4 / conaffinity=4  → body structural geoms (collide with each other — self-collision)
+    contype=0                  → visual-only geoms inside a body (no collision at all)
+
+  All structural mesh geoms use contype=4 conaffinity=4, EXCEPT the feet which
+  use contype=2 conaffinity=1 so they only interact with the floor.
+  Each structural mesh geom is paired with a simpler primitive (capsule/box) for
+  collision — the mesh geom gets contype=0 (visual only) and the primitive picks
+  up the collision group. This removes the NaN instability caused by mesh-mesh
+  contacts inside adjacent bodies.
+
+  CONTACT EXCLUSIONS
+  ──────────────────
+  Adjacent parent-child body pairs are excluded via <contact><exclude> so that
+  touching bodies that share a joint never trigger interpenetration penalties.
+
+  ACTUATORS
+  ─────────
+  Position actuators (not motor) are used so that mujoco_ros2_control can drive
+  them through the standard position command interface. kp values are tuned for
+  ~100 N·m/rad stiffness at the hip/knee and lighter at the ankle/arm.
+
+  ROS 2 CONTROL
+  ─────────────
+  The <ros2_control> block is embedded directly (not via xacro include) because
+  this is a pure MuJoCo XML file. The URDF-based ros2_control xacro block in
+  full_body.ros2_control.xacro is used by the RSP node for TF; this file is
+  passed as robot_model_path to mujoco_ros2_control.
+
+  MESHDIR
+  ───────
+  All meshes come from XP_robot/meshes/. The launch file sets the absolute
+  meshdir at runtime by copying this template and replacing the placeholder, or
+  by passing it via the compiler override. Here we use a placeholder path that
+  the launch file resolves via package:// path expansion.
+  → Set meshdir to the absolute path of XP_robot/meshes on your machine.
+    Launch file injects it automatically — do NOT edit this manually.
+-->
+<mujoco model="angad_full_body">
+
+    <!-- ═══════════════════════════════════════════════════════
+       COMPILER
+  ═══════════════════════════════════════════════════════ -->
+    <compiler
+        meshdir="MESHDIR_PLACEHOLDER"
+        angle="radian"
+        inertiafromgeom="false" />
+
+    <!-- ═══════════════════════════════════════════════════════
+       SOLVER / PHYSICS OPTIONS
+  ═══════════════════════════════════════════════════════ -->
+    <option
+        gravity="0 0 -9.81"
+        timestep="0.002"
+        iterations="50"
+        solver="Newton"
+        tolerance="1e-10"
+        cone="pyramidal" />
+
+    <!-- Load the 'standing' keyframe so the robot starts in a stable crouch -->
+    <size nkey="1" />
+    <statistic center="0 0 0.8" extent="1.5" />
+
+    <!-- ═══════════════════════════════════════════════════════
+       DEFAULTS
+       - Joints: moderate damping, small armature for realism
+       - Geoms: default to structural group (4); feet override below
+       - Position actuators: individual kp set per actuator
+  ═══════════════════════════════════════════════════════ -->
+    <default>
+        <joint damping="5.0" frictionloss="0.1" armature="0.05" />
+
+        <!-- Structural body geoms: collide with each other -->
+        <geom
+            contype="4"
+            conaffinity="4"
+            friction="0.8 0.02 0.01"
+            condim="3"
+            rgba="0.7 0.7 0.7 1" />
+
+        <motor ctrlrange="-1 1" ctrllimited="true" />
+
+        <!-- Named class overrides — must be nested inside top-level <default> -->
+        <default class="visual_only">
+            <!-- Mesh geoms used for visual rendering only — zero collision -->
+            <geom contype="0" conaffinity="0" />
+        </default>
+
+        <default class="foot_contact">
+            <!-- Foot sole capsules — collide only with ground -->
+            <geom
+                contype="2"
+                conaffinity="1"
+                friction="1.0 0.05 0.01"
+                condim="4"
+                solimp="0.9 0.95 0.001"
+                solref="0.02 1"
+                rgba="0.2 0.8 0.2 0.4" />
+        </default>
+    </default>
+
+    <!-- ═══════════════════════════════════════════════════════
+       VISUAL
+  ═══════════════════════════════════════════════════════ -->
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+        <rgba haze="0.15 0.25 0.35 1" />
+        <global azimuth="160" elevation="-20" />
+    </visual>
+
+    <!-- ═══════════════════════════════════════════════════════
+       ASSETS
+  ═══════════════════════════════════════════════════════ -->
+    <asset>
+        <!-- Lower body mesh assets (from XP_robot/meshes/) -->
+        <mesh name="pelvis" file="pelvis.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_r" file="hip_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_r" file="hip_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_r" file="thigh_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_r" file="leg_shank_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_r" file="uj_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_r" file="foot_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_l" file="hip_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_l" file="hip_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_l" file="thigh_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_l" file="leg_shank_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_l" file="uj_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_l" file="foot_l.stl" scale="0.001 0.001 0.001" />
+
+        <!-- Upper body mesh assets (from XP_robot/meshes/) -->
+        <mesh name="torso" file="torso.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_r" file="shoulder_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_r" file="shoulder_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_r" file="bicep_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_r" file="forearm_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_l" file="shoulder_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_l" file="shoulder_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_l" file="bicep_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_l" file="forearm_l.stl" scale="0.001 0.001 0.001" />
+
+        <!-- Textures / materials -->
+        <texture type="skybox" builtin="gradient"
+            rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+            rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8"
+            width="300" height="300" />
+        <material name="groundplane" texture="groundplane"
+            texuniform="true" texrepeat="5 5" reflectance="0.2" />
+    </asset>
+
+    <!-- ═══════════════════════════════════════════════════════
+       CONTACT EXCLUSIONS
+       Exclude adjacent body pairs so touching geoms don't
+       generate constraint forces through the joint gap.
+  ═══════════════════════════════════════════════════════ -->
+    <contact>
+        <!-- ── Lower body ── -->
+        <exclude body1="pelvis" body2="hip_pitch_r" />
+        <exclude body1="pelvis" body2="hip_pitch_l" />
+        <exclude body1="hip_pitch_r" body2="hip_roll_r" />
+        <exclude body1="hip_pitch_l" body2="hip_roll_l" />
+        <exclude body1="hip_roll_r" body2="thigh_r" />
+        <exclude body1="hip_roll_l" body2="thigh_l" />
+        <exclude body1="thigh_r" body2="leg_shank_r" />
+        <exclude body1="thigh_l" body2="leg_shank_l" />
+        <exclude body1="leg_shank_r" body2="uj_r" />
+        <exclude body1="leg_shank_l" body2="uj_l" />
+        <exclude body1="uj_r" body2="foot_r" />
+        <exclude body1="uj_l" body2="foot_l" />
+
+        <!-- ── Upper body ── -->
+        <exclude body1="pelvis" body2="torso" />
+        <exclude body1="torso" body2="shoulder_pitch_r" />
+        <exclude body1="torso" body2="shoulder_pitch_l" />
+        <exclude body1="shoulder_pitch_r" body2="shoulder_roll_r" />
+        <exclude body1="shoulder_pitch_l" body2="shoulder_roll_l" />
+        <exclude body1="shoulder_roll_r" body2="bicep_r" />
+        <exclude body1="shoulder_roll_l" body2="bicep_l" />
+        <exclude body1="bicep_r" body2="forearm_r" />
+        <exclude body1="bicep_l" body2="forearm_l" />
+
+        <!-- ── Cross-body exclusions (pelvis to thigh — common source of NaN) ── -->
+        <exclude body1="pelvis" body2="thigh_r" />
+        <exclude body1="pelvis" body2="thigh_l" />
+    </contact>
+
+    <!-- ═══════════════════════════════════════════════════════
+       WORLD BODY
+  ═══════════════════════════════════════════════════════ -->
+    <worldbody>
+        <light pos="0 0 4.0" dir="0 0 -1" directional="true" />
+
+        <!-- Ground: contype=1, conaffinity=1  →  only foot_contact geoms touch it -->
+        <geom name="floor"
+            size="10 10 0.05"
+            pos="0 0 0"
+            type="plane"
+            material="groundplane"
+            contype="1"
+            conaffinity="1"
+            friction="1.0 0.05 0.01"
+            condim="4" />
+
+        <!-- ────────────────────────────────────────────────────
+         PELVIS  (free-floating root)
+         Spawn height: feet at z≈0 → pelvis at z≈0.75
+    ──────────────────────────────────────────────────────── -->
+        <body name="pelvis" pos="0 0 0.76"
+            euler="7.434101676923934e-15 5.1966226177108e-16 4.579669976578509e-16">
+            <freejoint name="root" />
+
+            <geom name="pelvis_vis"
+                type="mesh" mesh="pelvis"
+                pos="0 0 0" euler="0 0 0"
+                contype="4" conaffinity="4" />
+
+            <inertial mass="5.565"
+                pos="-7.29606e-15 1.53753e-14 0.10941"
+                fullinertia="0.06430 0.07731 0.04267 0 0 0" />
+
+            <site name="imu_site" pos="0 0 0.1" size="0.01" />
+
+            <!-- ── RIGHT LEG ── -->
+            <body name="hip_pitch_r"
+                pos="-0.07429 3.73035e-16 0.06555"
+                euler="3.14159265358972 -1.30899694 3.14159265358972">
+                <joint name="hip_pitch_r" type="hinge"
+                    axis="-8.85254e-08 -2.30932e-14 -1.00000016"
+                    pos="-4.28172e-07 -4.96192e-07 2.45146e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="hip_pitch_r_vis"
+                    type="mesh" mesh="hip_pitch_r" pos="0 0 0" euler="0 0 0"
+                    contype="4" conaffinity="4" />
+
+                <inertial mass="1.008"
+                    pos="-8.145e-05 0.003455 0.07278"
+                    fullinertia="0.00415 0.00587 0.00350 0 0 0" />
+
+                <body name="hip_roll_r"
+                    pos="-0.13822 2.13163e-16 0.11492"
+                    euler="-3.14159265359 1.30899694 1.5707963268">
+                    <joint name="hip_roll_r" type="hinge"
+                        axis="1.0 -2.70282e-16 1.58193e-15"
+                        pos="0.02250 -2.11615e-07 0.14300"
+                        range="-2.35 0.292" limited="true" />
+
+                    <geom name="hip_roll_r_vis"
+                        type="mesh" mesh="hip_roll_r" pos="0 0 0" euler="0 0 0"
+                        contype="4" conaffinity="4" />
+
+                    <inertial mass="1.319"
+                        pos="3.521e-05 -3.037e-08 0.03968"
+                        fullinertia="0.00871 0.01037 0.00721 0 0 0" />
+
+                    <body name="thigh_r"
+                        pos="-0.01158 0.13179 -0.16854"
+                        euler="-4.71845e-15 4.16334e-16 -4.57967e-16">
+                        <joint name="thigh_yaw_r" type="hinge"
+                            axis="-9.48466e-15 8.15551e-15 -1.0"
+                            pos="0.01158 -0.13179 0.16304"
+                            range="-3.1416 3.1416" limited="true" />
+
+                        <geom name="thigh_r_vis"
+                            type="mesh" mesh="thigh_r" pos="0 0 0" euler="0 0 0"
+                            contype="4" conaffinity="4" />
+
+                        <inertial mass="2.264"
+                            pos="0.01437 -0.13463 -0.04238"
+                            fullinertia="0.04565 0.04875 0.00823 0 0 0" />
+
+                        <body name="leg_shank_r"
+                            pos="0.00998 0.01726 0.26583"
+                            euler="-6.9424e-04 -2.81600e-03 1.5714186">
+                            <joint name="knee_pitch_r" type="hinge"
+                                axis="-0.99999956 6.24246e-04 -6.94237e-04"
+                                pos="-0.17756 -5.04259e-04 -0.35291"
+                                range="-1.5708 0.0" limited="true" />
+
+                            <geom name="leg_shank_r_vis"
+                                type="mesh" mesh="leg_shank_r" pos="0 0 0" euler="0 0 0"
+                                contype="4" conaffinity="4" />
+
+                            <inertial mass="1.446"
+                                pos="-0.14872 -0.00406 -0.50123"
+                                fullinertia="0.02297 0.02434 0.00263 0 0 0" />
+
+                            <body name="uj_r"
+                                pos="-0.14857 6.66319e-04 -0.70015"
+                                euler="2.81556e-03 -6.95992e-04 -1.57142">
+                                <joint name="ankle_pitch_r" type="hinge"
+                                    axis="-6.61474e-16 1.0 -3.74710e-14"
+                                    pos="-1.88313e-07 -0.01700 3.23691e-07"
+                                    range="-0.6981 0.6981" limited="true" />
+
+                                <geom name="uj_r_vis"
+                                    type="mesh" mesh="uj_r" pos="0 0 0" euler="0 0 0"
+                                    contype="4" conaffinity="4" />
+
+                                <inertial mass="0.098"
+                                    pos="1.1e-10 -9.45e-14 -5.22e-05"
+                                    fullinertia="1.0e-05 8.64e-06 1.56e-05 0 0 0" />
+
+                                <body name="foot_r"
+                                    pos="0.02350 -1.208e-15 -0.03099"
+                                    euler="-4.03011e-14 1.33227e-15 1.5707963">
+                                    <joint name="ankle_roll_r" type="hinge"
+                                        axis="2.12673e-15 -1.0 -2.98746e-11"
+                                        pos="-2.09546e-07 0.04050 0.03099"
+                                        range="-0.3491 0.3491" limited="true" />
+
+                                    <geom name="foot_r_vis" class="visual_only"
+                                        type="mesh" mesh="foot_r" pos="0 0 0" euler="0 0 0" />
+
+                                    <!-- Two contact capsules at the foot sole.
+                                         Foot mesh extents (local frame, mm→m scaled):
+                                           X: ±0.040 (width), Y: -0.062 (heel) to +0.088 (toe)
+                                           Z: -0.009 (sole) to +0.047 (top)
+                                         Capsules aligned along X (foot width) via euler="0 1.5708 0" -->
+                                    <geom name="foot_r_heel"
+                                        class="foot_contact"
+                                        type="capsule" size="0.018 0.028"
+                                        pos="0.0 -0.048 -0.009"
+                                        euler="0 1.5708 0" />
+                                    <geom name="foot_r_toe"
+                                        class="foot_contact"
+                                        type="capsule" size="0.018 0.028"
+                                        pos="0.0 0.075 -0.009"
+                                        euler="0 1.5708 0" />
+
+                                    <inertial mass="0.365"
+                                        pos="-6.58e-11 0.02074 -4.79e-04"
+                                        fullinertia="8.31e-04 2.79e-04 9.48e-04 0 0 0" />
+                                    <site name="foot_r_site" pos="0 0.015 -0.009" size="0.01" />
+                                    <site name="foot_r_toe_site" pos="0 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_toe_site_2" pos="0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_toe_site_3" pos="-0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site" pos="0 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site_2" pos="0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site_3" pos="-0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+
+            <!-- ── LEFT LEG ── -->
+            <body name="hip_pitch_l"
+                pos="0.07429 -8.88178e-17 0.06555"
+                euler="3.14159265359 1.30899694 -3.14159265359">
+                <joint name="hip_pitch_l" type="hinge"
+                    axis="-8.85254e-08 8.37790e-16 1.00000016"
+                    pos="4.15130e-07 -4.96192e-07 2.93817e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="hip_pitch_l_vis"
+                    type="mesh" mesh="hip_pitch_l" pos="0 0 0" euler="0 0 0"
+                    contype="4" conaffinity="4" />
+
+                <inertial mass="1.008"
+                    pos="-8.145e-05 0.003455 0.07278"
+                    fullinertia="0.00415 0.00587 0.00350 0 0 0" />
+
+                <body name="hip_roll_l"
+                    pos="0.13803 -3.55271e-17 0.11492"
+                    euler="-3.14159265359 -1.30899694 1.5707963268">
+                    <joint name="hip_roll_l" type="hinge"
+                        axis="1.0 -3.43350e-15 4.67704e-15"
+                        pos="0.02250 -4.45388e-07 0.14300"
+                        range="-0.292 2.35" limited="true" />
+
+                    <geom name="hip_roll_l_vis"
+                        type="mesh" mesh="hip_roll_l" pos="0 0 0" euler="0 0 0"
+                        contype="4" conaffinity="4" />
+
+                    <inertial mass="1.319"
+                        pos="3.521e-05 -3.037e-08 0.03968"
+                        fullinertia="0.00871 0.01037 0.00721 0 0 0" />
+
+                    <body name="thigh_l"
+                        pos="-0.01158 0.13179 -0.16854"
+                        euler="-5.77316e-15 -1.74374e-15 1.04916e-15">
+                        <joint name="thigh_yaw_l" type="hinge"
+                            axis="-6.65332e-15 4.07544e-15 -1.0"
+                            pos="0.01158 -0.13179 0.16304"
+                            range="-3.1416 3.1416" limited="true" />
+
+                        <geom name="thigh_l_vis"
+                            type="mesh" mesh="thigh_l" pos="0 0 0" euler="0 0 0"
+                            contype="4" conaffinity="4" />
+
+                        <inertial mass="2.264"
+                            pos="0.01437 -0.13463 -0.04238"
+                            fullinertia="0.04565 0.04875 0.00823 0 0 0" />
+
+                        <body name="leg_shank_l"
+                            pos="0.00998 0.01726 0.26583"
+                            euler="-6.9424e-04 -2.81600e-03 1.5714186">
+                            <joint name="knee_pitch_l" type="hinge"
+                                axis="-0.99999956 6.24246e-04 -6.94237e-04"
+                                pos="-0.17756 -5.04260e-04 -0.35291"
+                                range="-1.5708 0.0" limited="true" />
+
+                            <geom name="leg_shank_l_vis"
+                                type="mesh" mesh="leg_shank_l" pos="0 0 0" euler="0 0 0"
+                                contype="4" conaffinity="4" />
+
+                            <inertial mass="1.446"
+                                pos="-0.14872 -0.00406 -0.50123"
+                                fullinertia="0.02297 0.02434 0.00263 0 0 0" />
+
+                            <body name="uj_l"
+                                pos="-0.14857 6.66319e-04 -0.70015"
+                                euler="-3.13878 6.95992e-04 -1.57017">
+                                <joint name="ankle_pitch_l" type="hinge"
+                                    axis="1.31678e-15 1.0 4.18232e-14"
+                                    pos="1.88313e-07 -0.01700 4.54769e-07"
+                                    range="-0.6981 0.6981" limited="true" />
+
+                                <geom name="uj_l_vis"
+                                    type="mesh" mesh="uj_l" pos="0 0 0" euler="0 0 0"
+                                    contype="4" conaffinity="4" />
+
+                                <inertial mass="0.098"
+                                    pos="1.1e-10 -9.45e-14 -5.22e-05"
+                                    fullinertia="1.0e-05 8.64e-06 1.56e-05 0 0 0" />
+
+                                <body name="foot_l"
+                                    pos="-0.02350 -1.06581e-15 0.03099"
+                                    euler="-3.14159265359 1.38778e-17 -1.5707963">
+                                    <joint name="ankle_roll_l" type="hinge"
+                                        axis="-2.73553e-15 -1.0 -2.98778e-11"
+                                        pos="-4.43319e-07 0.04050 0.03099"
+                                        range="-0.3491 0.3491" limited="true" />
+
+                                    <geom name="foot_l_vis" class="visual_only"
+                                        type="mesh" mesh="foot_l" pos="0 0 0" euler="0 0 0" />
+
+                                    <geom name="foot_l_heel"
+                                        class="foot_contact"
+                                        type="capsule" size="0.018 0.028"
+                                        pos="0.0 -0.048 -0.009"
+                                        euler="0 1.5708 0" />
+                                    <geom name="foot_l_toe"
+                                        class="foot_contact"
+                                        type="capsule" size="0.018 0.028"
+                                        pos="0.0 0.075 -0.009"
+                                        euler="0 1.5708 0" />
+
+                                    <inertial mass="0.365"
+                                        pos="-6.58e-11 0.02074 -4.79e-04"
+                                        fullinertia="8.31e-04 2.79e-04 9.48e-04 0 0 0" />
+                                    <site name="foot_l_site" pos="0 0.015 -0.009" size="0.01" />
+                                    <site name="foot_l_toe_site" pos="0 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_toe_site_2" pos="0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_toe_site_3" pos="-0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site" pos="0 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site_2" pos="0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site_3" pos="-0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+
+            <!-- ── TORSO (waist yaw joint) ── -->
+            <body name="torso"
+                pos="2.6956e-15 -2.6645e-16 0.21309"
+                euler="-1.3068e-16 -6.9082e-16 -3.14159265359">
+                <joint name="torso_yaw" type="hinge"
+                    axis="1.71159e-16 7.30343e-15 -1.0"
+                    pos="4.74806e-07 4.96192e-07 4.63614e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="torso_vis"
+                    type="mesh" mesh="torso" pos="0 0 0" euler="0 0 0"
+                    contype="4" conaffinity="4" />
+
+                <inertial mass="4.529"
+                    pos="0.00217 0.00139 0.22276"
+                    fullinertia="0.13599 0.20074 0.11603 0 0 0" />
+
+                <!-- ── RIGHT ARM ── -->
+                <body name="shoulder_pitch_r"
+                    pos="0.22152 -0.00428 0.26547"
+                    euler="-1.578e-30 -3.174e-15 3.14159265359">
+                    <joint name="shoulder_pitch_r" type="hinge"
+                        axis="-1.0 -1.887e-15 -3.003e-15"
+                        pos="0.07550 -0.00428 0.02403"
+                        range="-3.1416 3.1416" limited="true" />
+
+                    <geom name="shoulder_pitch_r_vis"
+                        type="mesh" mesh="shoulder_pitch_r" pos="0 0 0" euler="0 0 0"
+                        contype="4" conaffinity="4" />
+
+                    <inertial mass="0.929"
+                        pos="0.00218 -0.00191 0.02403"
+                        fullinertia="0.00327 0.00493 0.00368 0 0 0" />
+
+                    <body name="shoulder_roll_r"
+                        pos="1.934e-09 -0.00228 -0.08330"
+                        euler="-6.432e-16 -1.837e-15 -1.5707963268">
+                        <joint name="shoulder_roll_r" type="hinge"
+                            axis="-1.0 -9.973e-14 -6.660e-15"
+                            pos="0.04225 6.894e-08 0.10734"
+                            range="-0.0873 3.3161" limited="true" />
+
+                        <geom name="shoulder_roll_r_vis"
+                            type="mesh" mesh="shoulder_roll_r" pos="0 0 0" euler="0 0 0"
+                            contype="4" conaffinity="4" />
+
+                        <inertial mass="0.640"
+                            pos="3.74e-04 -8.40e-07 0.02539"
+                            fullinertia="0.00132 0.00173 0.00156 0 0 0" />
+
+                        <body name="bicep_r"
+                            pos="-0.00615 1.776e-16 -0.03500"
+                            euler="1.753e-15 3.938e-15 1.5707963268">
+                            <joint name="elbow_yaw_r" type="hinge"
+                                axis="-1.434e-16 -9.394e-15 -1.0"
+                                pos="6.894e-08 -0.00616 0.03100"
+                                range="-3.1416 3.1416" limited="true" />
+
+                            <geom name="bicep_r_vis"
+                                type="mesh" mesh="bicep_r" pos="0 0 0" euler="0 0 0"
+                                contype="4" conaffinity="4" />
+
+                            <inertial mass="0.648"
+                                pos="4.67e-04 -4.749e-03 -0.09020"
+                                fullinertia="0.00380 0.00362 0.00161 0 0 0" />
+
+                            <body name="forearm_r"
+                                pos="-0.00361 0.02837 -0.09891"
+                                euler="-5.175e-28 4.964e-15 9.925e-14">
+                                <joint name="elbow_pitch_r" type="hinge"
+                                    axis="1.0 6.106e-16 4.377e-15"
+                                    pos="-0.02839 -0.03452 -0.00108"
+                                    range="-2.5307 0.0" limited="true" />
+
+                                <geom name="forearm_r_vis"
+                                    type="mesh" mesh="forearm_r" pos="0 0 0" euler="0 0 0"
+                                    contype="4" conaffinity="4" />
+
+                                <inertial mass="0.370"
+                                    pos="0.00311 -0.03400 -0.10268"
+                                    fullinertia="0.00122 0.00130 3.09e-04 0 0 0" />
+                            </body>
+                        </body>
+                    </body>
+                </body>
+
+                <!-- ── LEFT ARM ── -->
+                <body name="shoulder_pitch_l"
+                    pos="-0.22152 -0.00428 0.31354"
+                    euler="3.14159265359 5.246e-15 8.164e-16">
+                    <joint name="shoulder_pitch_l" type="hinge"
+                        axis="1.0 1.332e-15 5.075e-15"
+                        pos="0.07550 -0.00428 0.02403"
+                        range="-3.1416 3.1416" limited="true" />
+
+                    <geom name="shoulder_pitch_l_vis"
+                        type="mesh" mesh="shoulder_pitch_l" pos="0 0 0" euler="0 0 0"
+                        contype="4" conaffinity="4" />
+
+                    <inertial mass="0.929"
+                        pos="0.00218 -0.00191 0.02403"
+                        fullinertia="0.00327 0.00493 0.00368 0 0 0" />
+
+                    <body name="shoulder_roll_l"
+                        pos="-1.934e-09 -0.00228 0.13137"
+                        euler="3.14159265359 4.641e-15 1.5707963268">
+                        <joint name="shoulder_roll_l" type="hinge"
+                            axis="-1.0 1.110e-13 -8.011e-15"
+                            pos="0.04225 -2.242e-08 0.10734"
+                            range="-3.3161 0.0873" limited="true" />
+
+                        <geom name="shoulder_roll_l_vis"
+                            type="mesh" mesh="shoulder_roll_l" pos="0 0 0" euler="0 0 0"
+                            contype="4" conaffinity="4" />
+
+                        <inertial mass="0.640"
+                            pos="3.74e-04 -8.40e-07 0.02539"
+                            fullinertia="0.00132 0.00173 0.00156 0 0 0" />
+
+                        <body name="bicep_l"
+                            pos="-0.00615 4.263e-16 -0.03500"
+                            euler="6.620e-16 3.938e-15 1.5707963268">
+                            <joint name="elbow_yaw_l" type="hinge"
+                                axis="1.619e-17 -1.217e-14 -1.0"
+                                pos="-2.242e-08 -0.00616 0.03100"
+                                range="-3.1416 3.1416" limited="true" />
+
+                            <geom name="bicep_l_vis"
+                                type="mesh" mesh="bicep_l" pos="0 0 0" euler="0 0 0"
+                                contype="4" conaffinity="4" />
+
+                            <inertial mass="0.648"
+                                pos="4.67e-04 -4.749e-03 -0.09020"
+                                fullinertia="0.00380 0.00362 0.00161 0 0 0" />
+
+                            <body name="forearm_l"
+                                pos="-0.00361 0.02837 -0.09891"
+                                euler="4.954e-28 4.604e-15 -1.113e-13">
+                                <joint name="elbow_pitch_l" type="hinge"
+                                    axis="1.0 2.637e-16 4.376e-15"
+                                    pos="-0.02839 -0.03452 -0.00108"
+                                    range="-2.5307 0.0" limited="true" />
+
+                                <geom name="forearm_l_vis"
+                                    type="mesh" mesh="forearm_l" pos="0 0 0" euler="0 0 0"
+                                    contype="4" conaffinity="4" />
+
+                                <inertial mass="0.370"
+                                    pos="0.00311 -0.03400 -0.10268"
+                                    fullinertia="0.00122 0.00130 3.09e-04 0 0 0" />
+                            </body>
+                        </body>
+                    </body>
+                </body>
+
+            </body> <!--
+            /torso -->
+
+        </body> <!--
+        /pelvis -->
+
+    </worldbody>
+
+    <!-- ═══════════════════════════════════════════════════════
+       ACTUATORS
+       Position actuators are required by mujoco_ros2_control.
+       kp is the position servo stiffness [N·m/rad].
+       Joint-level damping (default: 5 N·m·s/rad) acts as kd.
+
+       Tuning guide:
+         kp_hip/knee   ≈ 1000–2000  (heavy joints, high torque)
+         kp_ankle      ≈ 500–800    (moderate, need compliance)
+         kp_torso      ≈ 800        (yaw — lighter load)
+         kp_shoulder   ≈ 800–1200   (arm weight ~3 kg)
+         kp_elbow      ≈ 300–500    (lighter distal)
+  ═══════════════════════════════════════════════════════ -->
+    <actuator>
+        <!-- ── Lower body ── -->
+        <position name="hip_pitch_r" joint="hip_pitch_r" kp="1500" />
+        <position name="hip_roll_r" joint="hip_roll_r" kp="1200" />
+        <position name="thigh_yaw_r" joint="thigh_yaw_r" kp="800" />
+        <position name="knee_pitch_r" joint="knee_pitch_r" kp="1800" />
+        <position name="ankle_pitch_r" joint="ankle_pitch_r" kp="600" />
+        <position name="ankle_roll_r" joint="ankle_roll_r" kp="400" />
+
+        <position name="hip_pitch_l" joint="hip_pitch_l" kp="1500" />
+        <position name="hip_roll_l" joint="hip_roll_l" kp="1200" />
+        <position name="thigh_yaw_l" joint="thigh_yaw_l" kp="800" />
+        <position name="knee_pitch_l" joint="knee_pitch_l" kp="1800" />
+        <position name="ankle_pitch_l" joint="ankle_pitch_l" kp="600" />
+        <position name="ankle_roll_l" joint="ankle_roll_l" kp="400" />
+
+        <!-- ── Torso ── -->
+        <position name="torso_yaw" joint="torso_yaw" kp="800" />
+
+        <!-- ── Upper body ── -->
+        <position name="shoulder_pitch_r" joint="shoulder_pitch_r" kp="1000" />
+        <position name="shoulder_roll_r" joint="shoulder_roll_r" kp="1000" />
+        <position name="elbow_yaw_r" joint="elbow_yaw_r" kp="400" />
+        <position name="elbow_pitch_r" joint="elbow_pitch_r" kp="300" />
+
+        <position name="shoulder_pitch_l" joint="shoulder_pitch_l" kp="1000" />
+        <position name="shoulder_roll_l" joint="shoulder_roll_l" kp="1000" />
+        <position name="elbow_yaw_l" joint="elbow_yaw_l" kp="400" />
+        <position name="elbow_pitch_l" joint="elbow_pitch_l" kp="300" />
+    </actuator>
+
+    <!-- ═══════════════════════════════════════════════════════
+       SENSORS
+  ═══════════════════════════════════════════════════════ -->
+    <sensor>
+        <gyro name="imu_gyro" site="imu_site" />
+        <accelerometer name="imu_acc" site="imu_site" />
+        <!-- Foot contact forces for future use in the walking controller -->
+        <!-- Removed center foot force sensor for right foot -->
+        <force name="contact_force_r_toe_1" site="foot_r_toe_site" />
+        <force name="contact_force_r_toe_2" site="foot_r_toe_site_2" />
+        <force name="contact_force_r_heel_1" site="foot_r_heel_site" />
+        <force name="contact_force_r_heel_2" site="foot_r_heel_site_2" />
+
+        <!-- Removed center foot force sensor for left foot -->
+        <force name="contact_force_l_toe_1" site="foot_l_toe_site" />
+        <force name="contact_force_l_toe_2" site="foot_l_toe_site_2" />
+        <force name="contact_force_l_heel_1" site="foot_l_heel_site" />
+        <force name="contact_force_l_heel_2" site="foot_l_heel_site_2" />
+    </sensor>
+
+    <!-- ═══════════════════════════════════════════════════════
+       KEYFRAME  — initial standing pose
+       qpos order: freejoint(7) then joints in XML tree order:
+         hip_pitch_r  hip_roll_r  thigh_yaw_r  knee_pitch_r  ankle_pitch_r  ankle_roll_r
+         hip_pitch_l  hip_roll_l  thigh_yaw_l  knee_pitch_l  ankle_pitch_l  ankle_roll_l
+         torso_yaw
+         shoulder_pitch_r  shoulder_roll_r  elbow_yaw_r  elbow_pitch_r
+         shoulder_pitch_l  shoulder_roll_l  elbow_yaw_l  elbow_pitch_l
+       ctrl order mirrors actuator order (same as joints above).
+       Standing crouch: hip −5°, knee −15°, ankle +10° to keep CoM centred.
+  ═══════════════════════════════════════════════════════ -->
+    <keyframe>
+        <key name="standing"
+            qpos="0 0 0.76  1 0 0 0
+                  0 0 0  -0.05  0  0
+                  0 0 0  -0.05  0  0
+                  0
+                  0  0.3  0  0
+                  0 -0.3  0  0"
+            ctrl="0 0 0  -0.05  0  0
+                  0 0 0  -0.05  0  0
+                  0
+                  0  0.3  0  0
+                  0 -0.3  0  0" />
+        <key name="crouching"
+            qpos="0 0 0.70  1 0 0 0
+                0 0 0  -0.25  0  0
+                0 0 0  -0.25  0  0
+                0
+                0  0.15  0  0
+                0 -0.15  0  0"
+            ctrl="0 0 0  -0.25  0  0
+                0 0 0  -0.25  0  0
+                0
+                0  0.15  0  0
+                0 -0.15  0  0" />
+    </keyframe>
+
+</mujoco>

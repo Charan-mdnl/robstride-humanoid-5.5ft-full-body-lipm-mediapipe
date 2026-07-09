@@ -1,0 +1,147 @@
+# Changelog
+
+Record of code/config changes made with Claude across this project. Dates/times below are
+the real filesystem last-modified timestamps (`stat -c '%y'`), not estimates. Entries are
+newest first. This is not a git repo, so this file — plus the `.bak` snapshots noted per
+entry — is the only revert mechanism; read the "Revert" line before reverting anything.
+
+---
+
+## 2026-07-07 16:19 — `full_body_hardware_leg/launch/full_body_hardware.launch.py` — REVERTED
+**What:** Restored from `launch/full_body_hardware.launch.py.bak` at user request, undoing
+the 2026-07-07 15:21 RViz auto-launch fix below. `rviz:=true` is dead again (declared but
+the `rviz2` node isn't in the launched node list) — back to the original behavior. Rebuilt
+and confirmed `diff` against the backup shows no difference.
+**Why:** User asked to revert this specific file while debugging an unrelated namaste
+(arm gesture) issue. Note: this file is the **leg** package — namaste uses
+`full_body_hardware` (the arm package's launch file, separate file, untouched by this
+revert), so this change has no effect on the namaste demo either way.
+**Leftover:** `full_body_hardware_leg/config/display.rviz` (from the reverted change) is now
+unreferenced but still present on disk — harmless, delete if you want it gone.
+
+## 2026-07-07 15:42 — `full_body_hardware/launch/full_body_hardware.launch.py`
+**What:** Same dead-`rviz2` bug as the leg package's launch file (below): `rviz:=true` was
+declared but the `rviz2` Node was never included in the launched node list. Fixed the same
+way — pointed it at a new `config/display.rviz` via `arguments=['-d', <path>]` and added it
+to the final `return [...]` list.
+**Why:** So `ros2 launch full_body_hardware full_body_hardware.launch.py use_real_hardware:=false`
+(the fake-hardware nr_ik_test path) opens RViz automatically, pre-configured.
+**Revert:** `cp full_body_hardware/launch/full_body_hardware.launch.py.bak full_body_hardware/launch/full_body_hardware.launch.py` (exact pre-edit copy, verified identical via `diff` before editing).
+
+## 2026-07-07 15:40 — `full_body_hardware/config/display.rviz` (new file)
+**What:** Same RViz config as `full_body_hardware_leg/config/display.rviz` (Grid + RobotModel
+`/robot_description` + TF + MarkerArray `/nr_ik_test/markers`, Fixed Frame `base_link`).
+**Why:** Referenced by the launch-file fix above.
+**Revert:** Delete the file; only the one `-d` argument above references it.
+
+## 2026-07-07 15:21 — `full_body_hardware_leg/launch/full_body_hardware.launch.py`
+**What:** The launch file declared a `rviz:=true/false` argument and built an `rviz2` Node,
+but that node was never actually included in anything that gets launched (it was only
+referenced from a commented-out line inside the controller-spawn event handler). Result:
+`rviz:=true` silently did nothing. Fixed by (1) pointing `rviz2` at a new pre-configured
+display file via `arguments=['-d', <path>]`, and (2) adding `rviz2` directly to the launch's
+final `return [...]` list (it only needs `/robot_description` + `/tf`, both published from
+the start by `robot_state_publisher`, so it doesn't need to wait on controller spawning).
+Also removed the dead `# rviz2,` comment line that this replaces.
+**Why:** So `ros2 launch full_body_hardware_leg full_body_hardware.launch.py` opens RViz
+automatically with the robot model, TF, and `nr_ik_test` IK markers pre-loaded, instead of
+requiring a separate manual `rviz2` + manual display setup every run.
+**Does not touch:** `controller_manager_node`, the controller spawners, or any CAN/hardware
+bring-up code. RViz only subscribes to topics; it has no path back to the motors.
+**Revert:** `cp full_body_hardware_leg/launch/full_body_hardware.launch.py.bak full_body_hardware_leg/launch/full_body_hardware.launch.py` (exact pre-edit copy, verified identical via `diff` before editing).
+
+## 2026-07-07 15:20 — `full_body_hardware_leg/config/display.rviz` (new file)
+**What:** New RViz config: Grid + RobotModel (`/robot_description`) + TF + MarkerArray
+(`/nr_ik_test/markers`), Fixed Frame = `base_link` (this URDF's root link — RViz's own
+default of `map` doesn't exist in this robot's TF tree).
+**Why:** Referenced by the launch-file fix above so RViz opens pre-configured.
+**Revert:** Delete the file. Nothing else references it except the one `arguments=['-d', ...]` line above.
+
+## 2026-07-06 11:33 — `full_body_mujoco/CMakeLists.txt`
+**What:** Stripped down to build **only** the `nr_ik_test` executable. Removed:
+`find_package(pinocchio / mujoco_ros2_control_plugins / glfw3 / pluginlib / rosidl_default_generators)`;
+the executables `lipm_fk`, `backup`, `kajita_walker`, `zmp_control`, `zmp_control_dcm`,
+`lipm_walker`, `ik_mujoco_viewer`; the `mocap_marker_plugin` shared library + its plugin
+xml install; the `config`/`launch`/`urdf`/`scripts` directory installs and Python program
+installs; and `rosidl_generate_interfaces` (so `FootSensor`/`FootSensorArray` messages are
+no longer generated by this package).
+**Why:** Explicit request — "nr_ik_test needs to be installed so remove all other things in
+here" — because the build was failing on a missing `pinocchio` package and `nr_ik_test`
+itself doesn't need pinocchio/MuJoCo/glfw at all.
+**Impact if you rely on the removed pieces:** any other package that imports
+`full_body_mujoco/msg/FootSensor` will fail to find it; the walking-controller executables
+above are not currently built; the mocap/viewer scripts are not installed from this package.
+**Revert:** `cp full_body_mujoco/CMakeLists.txt.bak full_body_mujoco/CMakeLists.txt` restores
+the full original (verbatim, all targets). Note this will only build successfully again once
+`pinocchio` (`sudo apt install ros-jazzy-pinocchio`) and `mujoco_ros2_control_plugins`/`glfw3`
+are actually installed — that's the problem this change was working around.
+
+## 2026-07-06 11:28 — `full_body_hardware/urdf/full_body.ros2_control.xacro`
+**What:** Added a per-joint `<param name="can_interface">` to all 8 real arm joints
+(`can2` for the 4 left-arm joints, `can3` for the 4 right-arm joints) and a hardware-level
+`<param name="update_rate">200</param>`. Before this, all joints implicitly shared one bus
+via the single hardware-level `can_interface` param, which is what caused only one arm to
+ever respond (see the `RobStrideSystem` rewrite below).
+**Why:** Required by the new multi-bus threading support — each distinct `can_interface`
+value becomes its own worker thread/socket.
+**Revert:** Remove the 8 `<param name="can_interface">canX</param>` lines and the
+`update_rate` param; joints will fall back to the single hardware-level `can2` default
+(reintroducing the original single-bus behavior/bug).
+
+## 2026-07-04 18:17 — `full_body_hardware_leg/urdf/full_body.ros2_control.xacro`
+**What:** Three changes to the 12 leg joints: (1) added per-joint `can_interface` (initially
+assigned can4/can5 by joint side); (2) **corrected** motor_id + can_interface assignment
+after confirming actual wiring — right-side joints (`*_r`) use the 21-series motor IDs on
+`can4`, left-side joints (`*_l`) use the 31-series motor IDs on `can5` (the first pass had
+this backwards — left/right motor IDs were swapped relative to physical wiring); (3) fixed
+`knee_pitch_l`'s `motor_model` from `rs02` to `rs04` to match `knee_pitch_r` (both knees are
+the same real motor model).
+**Why:** (1)+(3) are hardware-description corrections to match the physical robot. (2) is
+safety-critical: the pre-correction mapping would have commanded the wrong physical motor
+for every left/right leg joint.
+**Revert:** ⚠️ Do NOT blindly revert this file — the pre-correction state had the
+motor_id/bus mapping backwards (a real hardware-safety bug), not a working prior version.
+If something regresses, fix forward rather than reverting.
+
+## 2026-07-04 16:58 — `full_body_hardware_leg/src/robstride_system.cpp`
+**What:** Fixed compile/logic bugs introduced while porting the multi-bus threading pattern
+into this file: `RobstrideSystem::~RobStrideSystem()` misspelled class name in the
+destructor; `on_activate`'s `return`/log statements were misplaced inside the thread-spawn
+loop (only the first bus's worker thread would ever start); `activate_bus`'s zero-position
+block had `bus_idx` (undeclared) instead of `bus.idx`, `uint3_t` instead of `uint32_t`,
+`CommType::SET_ZERO` instead of `CommType::SET_ZERO_POSITION`, and a stray `s` character;
+`on_deactivate` was missing its function signature entirely (the body was floating loose at
+namespace scope, which doesn't compile).
+**Why:** These were typos/mistakes made while adapting the arm package's multi-bus threading
+pattern into the leg package; the file didn't compile until fixed.
+**Revert:** ⚠️ Do NOT revert — the pre-fix version does not compile (it's not a working
+prior state, it's mid-edit breakage).
+
+## 2026-07-04 15:03 — `full_body_hardware/urdf/full_body.xacro`
+**What:** `elbow_pitch_l` joint limit changed from `<limit ... upper="0.0" ...>` to
+`upper="0.05"`.
+**Why:** The real motor rests a few millirad past mechanical zero (measured ~+0.008 rad),
+which tripped MoveIt's `CheckStartStateBounds` adapter (start state reported as out of
+bounds) every time move_group started. Padding the limit gives it headroom.
+**Revert:** Change `upper="0.05"` back to `upper="0.0"` on the `elbow_pitch_l` joint — but
+this will likely reintroduce the `CheckStartStateBounds` startup failure.
+
+## 2026-07-04 13:17 — `full_body_hardware/src/robstride_system.cpp`
+## 2026-07-04 13:05 — `full_body_hardware/include/full_body_hardware/robstride_system.hpp`
+**What:** Full rewrite of the `RobStrideSystem` ros2_control plugin, from a single
+`CanInterface` + blocking `read()`/`write()` on the control thread, to: one `MotorBus`
+(socket + worker `std::thread`) per unique `can_interface` value; `read()`/`write()` reduced
+to mutex-guarded buffer copies (no CAN I/O on the control thread); CAN reply frames
+dispatched by `src_id` via an `id_to_idx_` map (previously matched positionally, which broke
+silently if replies arrived out of order); per-motor `SET_ZERO_POSITION` (corrected to the
+required `0x01` payload — an empty frame is a firmware no-op) + `SAVE_PARAMETERS` on
+activate; graceful thread shutdown in `on_deactivate` and the destructor.
+**Why:** The original single-bus design meant only one arm (whichever bus the one
+`CanInterface` opened) ever responded — the other arm was silently bypassed. This was the
+root cause of "it creates an interface and works with only one module."
+**Revert:** No `.bak` currently exists for these two files (this was the very first change
+of the session, before the backup-on-edit practice used for everything since). Reverting
+would mean going back to single-bus/blocking I/O — i.e. reintroducing the original "only one
+arm responds" bug — so this isn't something you'd actually want to revert to. Ask if you'd
+like a literal backup of the pre-rewrite version created retroactively; the original content
+is still available from this session's history.

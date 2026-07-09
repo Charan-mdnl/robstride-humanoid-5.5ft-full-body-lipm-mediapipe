@@ -1,0 +1,5 @@
+<library path="fake_system">
+    <class name="full_body_hardware/FakeSystem"
+        type="full_body_hardware::FakeSystem"
+        base_class_type="hardware_interface::SystemInterface" />
+</library>

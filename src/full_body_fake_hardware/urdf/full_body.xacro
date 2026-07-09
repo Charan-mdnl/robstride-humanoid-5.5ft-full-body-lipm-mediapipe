@@ -1,0 +1,1864 @@
+<?xml version="1.0"?>
+<robot name="angad_full_body" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:property name="xp_mesh" value="file:///home/me/clean_ws/src/XP_robot/meshes" />
+
+    <material name="silver">
+        <color rgba="0.7 0.7 0.7 1.0" />
+    </material>
+    <link name="world" />
+
+    <joint name="world_to_base" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="world" />
+        <child link="base_link" />
+    </joint>
+    <link name="base_link" />
+
+    <joint name="base_link_to_pelvis" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="base_link" />
+        <child link="pelvis" />
+    </joint>
+
+    <!-- ══════════════════════════════════════════════════
+       PELVIS
+  ══════════════════════════════════════════════════ -->
+    <link name="pelvis">
+        <inertial>
+            <origin xyz="0 0 0.109" rpy="0 0 0" />
+            <mass value="5.65" />
+            <inertia ixx="0.0293362" iyy="0.035634" izz="0.022212"
+                ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/pelvis.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.07" rpy="0 0 0" />
+            <geometry>
+                <box size="0.145 0.14 0.24" />
+            </geometry>
+        </collision>
+    </link>
+
+    <!-- ══ RIGHT LEG ══ -->
+    <link name="hip_pitch_r">
+        <inertial>
+            <origin xyz="-8e-05 0.00346 0.07278" rpy="0 0 0" />
+            <mass value="1.56" />
+            <inertia ixx="0.003057" iyy="0.003802" izz="0.001812" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/hip_pitch_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.06" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.10" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="hip_pitch_r" type="revolute">
+        <origin xyz="-0.074290 0.000000 0.065550" rpy="-3.141593 -1.308997 -3.141593" />
+        <parent link="pelvis" />
+        <child link="hip_pitch_r" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="150" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <link name="hip_roll_r">
+        <inertial>
+            <origin xyz="3.5e-05 -3e-08 0.03968" rpy="0 0 0" />
+            <mass value="1.319" />
+            <inertia ixx="0.004763" iyy="0.004696" izz="0.002727" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/hip_roll_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.04" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.08" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="hip_roll_r_frame" />
+
+    <joint name="hip_roll_r" type="revolute">
+        <origin xyz="-0.000093 -0.022500 0.077909" rpy="-1.832596 0.000000 -1.570796" />
+        <parent link="hip_pitch_r" />
+        <child link="hip_roll_r_frame" />
+        <axis xyz="1 0 0" />
+        <limit lower="-2.35" upper="0.292" effort="120" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="hip_roll_r_fix" type="fixed">
+        <origin xyz="-0.022500 0.000000 -0.143000" rpy="0 0 0" />
+        <parent link="hip_roll_r_frame" />
+        <child link="hip_roll_r" />
+    </joint>
+
+    <link name="thigh_r">
+        <inertial>
+            <origin xyz="0.002790 -0.002840 -0.205420" rpy="0 0 0" />
+            <mass value="2.3" />
+            <inertia ixx="0.021712" iyy="0.019466" izz="0.003743" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.011580 0.131790 -0.163040" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/thigh_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="-0.001580 0.001790 -0.103040" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.04" length="0.21" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="thigh_yaw_r_frame" />
+
+    <joint name="thigh_yaw_r" type="revolute">
+        <origin xyz="0.000000 0.000000 -0.005500" rpy="0 0 0" />
+        <parent link="hip_roll_r" />
+        <child link="thigh_yaw_r_frame" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="80" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="thigh_yaw_r_fix" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="thigh_yaw_r_frame" />
+        <child link="thigh_r" />
+    </joint>
+
+    <link name="leg_shank_r">
+        <inertial>
+            <origin xyz="0.028840 -0.003560 -0.148320" rpy="0 0 0" />
+            <mass value="1.45" />
+            <inertia ixx="0.022969" iyy="0.024343" izz="0.002626" ixy="1.01e-06" ixz="2.29e-05"
+                iyz="8.91e-05" />
+        </inertial>
+        <visual>
+            <origin xyz="0.177560 0.000500 0.352910" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/leg_shank_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.029560 -0.003500 -0.147090" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.32" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="knee_pitch_r_frame" />
+
+    <joint name="knee_pitch_r" type="revolute">
+        <origin xyz="0.000009 -0.028755 -0.249994" rpy="-0.002816 0.000696 1.571419" />
+        <parent link="thigh_r" />
+        <child link="knee_pitch_r_frame" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-1.5708" upper="0.0" effort="200" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="knee_pitch_r_fix" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="knee_pitch_r_frame" />
+        <child link="leg_shank_r" />
+    </joint>
+
+    <link name="uj_r">
+        <inertial>
+            <origin xyz="0 0 -5.22e-05" rpy="0 0 0" />
+            <mass value="0.098" />
+            <inertia ixx="1.31203e-05" iyy="1.25247e-05" izz="8.64218e-06" ixy="-2.79697e-06"
+                iyz="-2.61111e-09" ixz="4.18106e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/uj_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.025" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="ankle_pitch_r_frame" />
+
+    <joint name="ankle_pitch_r" type="revolute">
+        <origin xyz="0.011990 0.001177 -0.347252" rpy="0.000694 0.002816 -1.571420" />
+        <parent link="leg_shank_r" />
+        <child link="ankle_pitch_r_frame" />
+        <axis xyz="0 1 0" />
+        <limit lower="-0.6981" upper="0.6981" effort="80" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="ankle_pitch_r_fix" type="fixed">
+        <origin xyz="0.000000 0.017000 0.000000" rpy="0 0 0" />
+        <parent link="ankle_pitch_r_frame" />
+        <child link="uj_r" />
+    </joint>
+
+    <link name="foot_r">
+        <inertial>
+            <origin xyz="-6.6e-11 0.02074 -4.8e-04" rpy="0 0 0" />
+            <mass value="0.365" />
+            <inertia ixx="0.000947667" iyy="0.000279103" izz="0.000831069" ixy="3.3367e-05"
+                iyz="2.31946e-13" ixz="-2.45153e-13" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/foot_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0.055 -0.048" rpy="0 0 0" />
+            <geometry>
+                <box size="0.06 0.14 0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="ankle_roll_r_frame" />
+
+    <joint name="ankle_roll_r" type="revolute">
+        <origin xyz="-0.017000 0.000000 0.000000" rpy="0.000000 0.000000 1.570796" />
+        <parent link="uj_r" />
+        <child link="ankle_roll_r_frame" />
+        <axis xyz="0 -1 0" />
+        <limit lower="-0.3491" upper="0.3491" effort="60" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="ankle_roll_r_fix" type="fixed">
+        <origin xyz="0.000000 -0.040500 -0.030990" rpy="0 0 0" />
+        <parent link="ankle_roll_r_frame" />
+        <child link="foot_r" />
+    </joint>
+
+    <!-- ══ LEFT LEG ══ -->
+    <link name="hip_pitch_l">
+        <inertial>
+            <origin xyz="-8e-05 0.00346 0.07278" rpy="0 0 0" />
+            <mass value="1.56" />
+            <inertia ixx="0.003057" iyy="0.003802" izz="0.001812" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/hip_pitch_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.06" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.10" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="hip_pitch_l" type="revolute">
+        <origin xyz="0.074290 0.000000 0.065550" rpy="3.141593 1.308997 -3.141593" />
+        <parent link="pelvis" />
+        <child link="hip_pitch_l" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.1416" upper="3.1416" effort="150" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <link name="hip_roll_l">
+        <inertial>
+            <origin xyz="3.5e-05 -3e-08 0.03968" rpy="0 0 0" />
+            <mass value="1.319" />
+            <inertia ixx="0.004763" iyy="0.004696" izz="0.002727" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/hip_roll_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.04" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.08" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="hip_roll_l_frame" />
+
+    <joint name="hip_roll_l" type="revolute">
+        <origin xyz="-0.000097 -0.022500 0.077909" rpy="1.832596 0.000000 -1.570796" />
+        <parent link="hip_pitch_l" />
+        <child link="hip_roll_l_frame" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.292" upper="2.35" effort="120" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="hip_roll_l_fix" type="fixed">
+        <origin xyz="-0.022500 0.000000 -0.143000" rpy="0 0 0" />
+        <parent link="hip_roll_l_frame" />
+        <child link="hip_roll_l" />
+    </joint>
+
+    <link name="thigh_l">
+        <inertial>
+            <origin xyz="0.002790 -0.002840 -0.205420" rpy="0 0 0" />
+            <mass value="2.3" />
+            <inertia ixx="0.021712" iyy="0.019466" izz="0.003743" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.011580 0.131790 -0.163040" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/thigh_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="-0.001580 0.001790 -0.103040" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.04" length="0.21" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="thigh_yaw_l_frame" />
+
+    <joint name="thigh_yaw_l" type="revolute">
+        <origin xyz="0.000000 0.000000 -0.005500" rpy="0 0 0" />
+        <parent link="hip_roll_l" />
+        <child link="thigh_yaw_l_frame" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="80" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="thigh_yaw_l_fix" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="thigh_yaw_l_frame" />
+        <child link="thigh_l" />
+    </joint>
+
+    <link name="leg_shank_l">
+        <inertial>
+            <origin xyz="0.028840 -0.003560 -0.148320" rpy="0 0 0" />
+            <mass value="1.45" />
+            <inertia ixx="0.022969" iyy="0.024343" izz="0.002626" ixy="1.01e-06" ixz="2.29e-05"
+                iyz="8.91e-05" />
+        </inertial>
+        <visual>
+            <origin xyz="0.177560 0.000500 0.352910" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/leg_shank_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.029560 -0.003500 -0.147090" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.035" length="0.32" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="knee_pitch_l_frame" />
+
+    <joint name="knee_pitch_l" type="revolute">
+        <origin xyz="0.000009 -0.028755 -0.249994" rpy="-0.002816 0.000696 1.571419" />
+        <parent link="thigh_l" />
+        <child link="knee_pitch_l_frame" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-1.5708" upper="0.0" effort="200" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="knee_pitch_l_fix" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <parent link="knee_pitch_l_frame" />
+        <child link="leg_shank_l" />
+    </joint>
+
+    <link name="uj_l">
+        <inertial>
+            <origin xyz="0 0 -5.22e-05" rpy="0 0 0" />
+            <mass value="0.098" />
+            <inertia ixx="1.31203e-05" iyy="1.25247e-05" izz="8.64218e-06" ixy="-2.79697e-06"
+                iyz="-2.61151e-09" ixz="4.1807e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/uj_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.025" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="ankle_pitch_l_frame" />
+
+    <joint name="ankle_pitch_l" type="revolute">
+        <origin xyz="0.011990 0.001177 -0.347252" rpy="3.140898 -0.002813 1.570170" />
+        <parent link="leg_shank_l" />
+        <child link="ankle_pitch_l_frame" />
+        <axis xyz="0 1 0" />
+        <limit lower="-0.6981" upper="0.6981" effort="80" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="ankle_pitch_l_fix" type="fixed">
+        <origin xyz="0.000000 0.017000 0.000000" rpy="0 0 0" />
+        <parent link="ankle_pitch_l_frame" />
+        <child link="uj_l" />
+    </joint>
+
+    <link name="foot_l">
+        <inertial>
+            <origin xyz="-6.6e-11 0.02074 -4.8e-04" rpy="0 0 0" />
+            <mass value="0.365" />
+            <inertia ixx="0.000947667" iyy="0.000279103" izz="0.000831069" ixy="-3.3367e-05"
+                iyz="2.31948e-13" ixz="2.45154e-13" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/foot_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0.055 -0.048" rpy="0 0 0" />
+            <geometry>
+                <box size="0.06 0.14 0.02" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="ankle_roll_l_frame" />
+
+    <joint name="ankle_roll_l" type="revolute">
+        <origin xyz="0.017000 -0.000000 0.000000" rpy="-3.141593 0.000000 1.570796" />
+        <parent link="uj_l" />
+        <child link="ankle_roll_l_frame" />
+        <axis xyz="0 -1 0" />
+        <limit lower="-0.3491" upper="0.3491" effort="60" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="ankle_roll_l_fix" type="fixed">
+        <origin xyz="0.000000 -0.040500 -0.030990" rpy="0 0 0" />
+        <parent link="ankle_roll_l_frame" />
+        <child link="foot_l" />
+    </joint>
+
+    <!-- ══ TORSO ══ -->
+    <link name="torso">
+        <inertial>
+            <origin xyz="0.00217 0.00139 0.22276" rpy="0 0 0" />
+            <mass value="3" />
+            <inertia ixx="0.052312" iyy="0.070327" izz="0.03599" ixy="-2.55562e-05"
+                iyz="0.000477378" ixz="0.000377208" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/torso.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.18" rpy="0 0 0" />
+            <geometry>
+                <box size="0.24 0.20 0.36" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="torso_yaw" type="revolute">
+        <origin xyz="0.000000 0.000000 0.213090" rpy="0.000000 0.000000 3.141593" />
+        <parent link="pelvis" />
+        <child link="torso" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="100" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <!-- ══ RIGHT ARM ══ -->
+    <link name="shoulder_pitch_r">
+        <inertial>
+            <origin xyz="0.00218 -0.00191 0.02403" rpy="0 0 0" />
+            <mass value="1" />
+            <inertia ixx="0.001678" iyy="0.002325" izz="0.001469" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/shoulder_pitch_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.075 0 0.024" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.04" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_pitch_r_frame" />
+
+    <joint name="shoulder_pitch_r" type="revolute">
+        <origin xyz="0.146020 0.000000 0.289500" rpy="0.000000 0.000000 -3.141593" />
+        <parent link="torso" />
+        <child link="shoulder_pitch_r_frame" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-3.1416" upper="3.1416" effort="100" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="shoulder_pitch_r_fix" type="fixed">
+        <origin xyz="-0.075500 0.004280 -0.024030" rpy="0 0 0" />
+        <parent link="shoulder_pitch_r_frame" />
+        <child link="shoulder_pitch_r" />
+    </joint>
+
+    <link name="shoulder_roll_r">
+        <inertial>
+            <origin xyz="3.74e-04 -8.4e-07 0.02539" rpy="0 0 0" />
+            <mass value="0.64" />
+            <inertia ixx="0.001678" iyy="0.001509" izz="0.000812" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/shoulder_roll_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.025" length="0.08" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_roll_r_frame" />
+
+    <joint name="shoulder_roll_r" type="revolute">
+        <origin xyz="0.000000 -0.044530 0.024040" rpy="0.000000 0.000000 -1.570796" />
+        <parent link="shoulder_pitch_r" />
+        <child link="shoulder_roll_r_frame" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.0873" upper="3.3161" effort="100" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="shoulder_roll_r_fix" type="fixed">
+        <origin xyz="-0.042250 0.000000 -0.107340" rpy="0 0 0" />
+        <parent link="shoulder_roll_r_frame" />
+        <child link="shoulder_roll_r" />
+    </joint>
+
+    <link name="bicep_r">
+        <inertial>
+            <origin xyz="4.67e-04 -4.75e-03 -0.09020" rpy="0 0 0" />
+            <mass value="0.65" />
+            <inertia ixx="0.002378" iyy="0.002185" izz="0.000712" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/bicep_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.0005 -0.005 -0.045" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.028" length="0.14" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="elbow_yaw_r_frame" />
+
+    <joint name="elbow_yaw_r" type="revolute">
+        <origin xyz="0.000010 0.000000 -0.004000" rpy="0.000000 0.000000 1.570796" />
+        <parent link="shoulder_roll_r" />
+        <child link="elbow_yaw_r_frame" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="50" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="elbow_yaw_r_fix" type="fixed">
+        <origin xyz="0.000000 0.006160 -0.031000" rpy="0 0 0" />
+        <parent link="elbow_yaw_r_frame" />
+        <child link="bicep_r" />
+    </joint>
+
+    <link name="forearm_r">
+        <inertial>
+            <origin xyz="0.00311 -0.03400 -0.10268" rpy="0 0 0" />
+            <mass value="0.37" />
+            <inertia ixx="0.001221" iyy="0.001302" izz="0.000309" ixy="-1.25e-07" ixz="2.43e-05"
+                iyz="-1.40e-05" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/forearm_r.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.003 -0.034 -0.103" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.022" length="0.14" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="elbow_pitch_r_frame" />
+
+    <joint name="elbow_pitch_r" type="revolute">
+        <origin xyz="-0.032000 -0.006150 -0.099990" rpy="0.000000 0.000000 0.000000" />
+        <parent link="bicep_r" />
+        <child link="elbow_pitch_r_frame" />
+        <axis xyz="1 0 0" />
+        <limit lower="-2.5307" upper="0.0" effort="50" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="elbow_pitch_r_fix" type="fixed">
+        <origin xyz="0.028390 0.034520 0.001080" rpy="0 0 0" />
+        <parent link="elbow_pitch_r_frame" />
+        <child link="forearm_r" />
+    </joint>
+
+    <!-- ══ LEFT ARM ══ -->
+    <link name="shoulder_pitch_l">
+        <inertial>
+            <origin xyz="0.00218 -0.00191 0.02403" rpy="0 0 0" />
+            <mass value="1" />
+            <inertia ixx="0.001678" iyy="0.002325" izz="0.001469" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/shoulder_pitch_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.075 0 0.024" rpy="0 0 0" />
+            <geometry>
+                <sphere radius="0.04" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_pitch_l_frame" />
+
+    <joint name="shoulder_pitch_l" type="revolute">
+        <origin xyz="-0.146020 0.000000 0.289510" rpy="-3.141593 0.000000 0.000000" />
+        <parent link="torso" />
+        <child link="shoulder_pitch_l_frame" />
+        <axis xyz="1 0 0" />
+        <limit lower="-3.1416" upper="3.1416" effort="100" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="shoulder_pitch_l_fix" type="fixed">
+        <origin xyz="-0.075500 0.004280 -0.024030" rpy="0 0 0" />
+        <parent link="shoulder_pitch_l_frame" />
+        <child link="shoulder_pitch_l" />
+    </joint>
+
+    <link name="shoulder_roll_l">
+        <inertial>
+            <origin xyz="3.74e-04 -8.4e-07 0.02539" rpy="0 0 0" />
+            <mass value="0.64" />
+            <inertia ixx="0.001678" iyy="0.001509" izz="0.000812" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/shoulder_roll_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.05" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.025" length="0.08" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="shoulder_roll_l_frame" />
+
+    <joint name="shoulder_roll_l" type="revolute">
+        <origin xyz="0.000000 -0.044530 0.024030" rpy="-3.141593 0.000000 -1.570796" />
+        <parent link="shoulder_pitch_l" />
+        <child link="shoulder_roll_l_frame" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-3.3161" upper="0.0873" effort="100" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="shoulder_roll_l_fix" type="fixed">
+        <origin xyz="-0.042250 0.000000 -0.107340" rpy="0 0 0" />
+        <parent link="shoulder_roll_l_frame" />
+        <child link="shoulder_roll_l" />
+    </joint>
+
+    <link name="bicep_l">
+        <inertial>
+            <origin xyz="4.67e-04 -4.75e-03 -0.09020" rpy="0 0 0" />
+            <mass value="0.65" />
+            <inertia ixx="0.002378" iyy="0.002185" izz="0.000712" ixy="0" iyz="0" ixz="0" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/bicep_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.0005 -0.005 -0.045" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.028" length="0.14" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="elbow_yaw_l_frame" />
+
+    <joint name="elbow_yaw_l" type="revolute">
+        <origin xyz="0.000010 0.000000 -0.004000" rpy="0.000000 0.000000 1.570796" />
+        <parent link="shoulder_roll_l" />
+        <child link="elbow_yaw_l_frame" />
+        <axis xyz="0 0 -1" />
+        <limit lower="-3.1416" upper="3.1416" effort="50" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="elbow_yaw_l_fix" type="fixed">
+        <origin xyz="0.000000 0.006160 -0.031000" rpy="0 0 0" />
+        <parent link="elbow_yaw_l_frame" />
+        <child link="bicep_l" />
+    </joint>
+
+    <link name="forearm_l">
+        <inertial>
+            <origin xyz="0.00311 -0.03400 -0.10268" rpy="0 0 0" />
+            <mass value="0.37" />
+            <inertia ixx="0.001221" iyy="0.001302" izz="0.000309" ixy="-1.25e-07" ixz="2.43e-05"
+                iyz="-1.40e-05" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/forearm_l.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.003 -0.034 -0.103" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.022" length="0.14" />
+            </geometry>
+        </collision>
+    </link>
+    <link name="elbow_pitch_l_frame" />
+
+    <joint name="elbow_pitch_l" type="revolute">
+        <origin xyz="-0.032000 -0.006150 -0.099990" rpy="0.000000 0.000000 0.000000" />
+        <parent link="bicep_l" />
+        <child link="elbow_pitch_l_frame" />
+        <axis xyz="1 0 0" />
+        <limit lower="-2.5307" upper="0.0" effort="50" velocity="5" />
+        <dynamics damping="5.0" friction="0.1" />
+    </joint>
+
+    <joint name="elbow_pitch_l_fix" type="fixed">
+        <origin xyz="0.028390 0.034520 0.001080" rpy="0 0 0" />
+        <parent link="elbow_pitch_l_frame" />
+        <child link="forearm_l" />
+    </joint>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         RIGHT HAND
+         All collision geometries are primitive shapes (box / cylinder / sphere).
+         Visual meshes are unchanged.
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Palm: flat box covering the hand body (~80 × 35 × 20 mm) -->
+    <link name="R_palm">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="2.07101" />
+            <inertia ixx="0.00301201" iyy="0.00368459" izz="0.00108223" ixy="-1.11461e-05"
+                iyz="-5.94617e-06" ixz="0.000228029" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_palm.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.09" rpy="0 0 0" />
+            <geometry>
+                <box size="0.080 0.020 0.090" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="hand_roll_r" type="revolute">
+        <origin xyz="0.003609 -0.034524 -0.153085" rpy="-3.141593 0 -3.141593" />
+        <parent link="forearm_r" />
+        <child link="R_palm" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.1416" upper="3.1416" effort="10" velocity="5" />
+        <dynamics damping="0.5" friction="0.1" />
+    </joint>
+
+    <!-- Right thumb — 4 phalanges, each a small cylinder (r=8mm) -->
+    <link name="R_thumb_yaw_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0209599" />
+            <inertia ixx="1.04104e-06" iyy="4.30916e-07" izz="1.05868e-06" ixy="-1.49239e-09"
+                iyz="-1.70581e-08" ixz="1.55537e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.032500 -0.031212 -0.088490" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_thumb_yaw_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.013" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.026" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_thumb_yaw" type="revolute">
+        <origin xyz="0.023000 -0.011000 0.055250" rpy="-3.141593 0 3.141593" />
+        <parent link="R_palm" />
+        <child link="R_thumb_yaw_link" />
+        <axis xyz="0 0 1" />
+        <limit lower="-0.60" upper="0.75" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_thumb_cmc_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.24597" />
+            <inertia ixx="6.4318e-05" iyy="2.74467e-05" izz="7.56675e-05" ixy="-1.61748e-06"
+                iyz="1.41715e-07" ixz="9.99262e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.037250 -0.019212 -0.081660" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_thumb_cmc_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.031 0" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.030" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_thumb_cmc" type="revolute">
+        <origin xyz="0.004750 -0.012000 -0.006830" rpy="0 0 0" />
+        <parent link="R_thumb_yaw_link" />
+        <child link="R_thumb_cmc_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.60" upper="0.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_thumb_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.045886" />
+            <inertia ixx="4.89396e-06" iyy="3.94772e-06" izz="4.52352e-06" ixy="-6.88571e-07"
+                iyz="6.07438e-08" ixz="-3.34623e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.037200 0.042788 -0.073660" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_thumb_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.010 0.009" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.019" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_thumb_mcp" type="revolute">
+        <origin xyz="-0.000050 -0.062000 -0.008000" rpy="0 0 0" />
+        <parent link="R_thumb_cmc_link" />
+        <child link="R_thumb_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-1.57" upper="0.00" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_thumb_ip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0744043" />
+            <inertia ixx="7.12656e-06" iyy="3.86313e-06" izz="7.24882e-06" ixy="3.07082e-07"
+                iyz="-2.45329e-08" ixz="1.05486e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.037200 0.061788 -0.073660" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_thumb_ip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.010 0.009" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.007" length="0.018" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_thumb_ip" type="revolute">
+        <origin xyz="-0.000000 -0.019000 0.000000" rpy="0 0 0" />
+        <parent link="R_thumb_mcp_link" />
+        <child link="R_thumb_ip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.95" upper="0.13" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Right pinky — 3 phalanges (r=6mm) -->
+    <link name="R_pinky_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341665" />
+            <inertia ixx="1.63791e-06" iyy="3.87536e-06" izz="3.64555e-06" ixy="2.51823e-07"
+                iyz="2.20362e-08" ixz="-1.78403e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.035055 0.000670 -0.134339" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_pinky_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.02" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_pinky_mcp" type="revolute">
+        <origin xyz="-0.035055 -0.000670 0.134339" rpy="0 0 0" />
+        <parent link="R_palm" />
+        <child link="R_pinky_mcp_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.50" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_pinky_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.026358" />
+            <inertia ixx="1.37179e-06" iyy="2.38528e-06" izz="2.05956e-06" ixy="4.42896e-08"
+                iyz="3.8686e-09" ixz="-6.17785e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.037973 0.000665 -0.162106" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_pinky_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.017" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_pinky_pip" type="revolute">
+        <origin xyz="-0.002918 0.000005 0.027767" rpy="0 0 0" />
+        <parent link="R_pinky_mcp_link" />
+        <child link="R_pinky_pip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.13" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_pinky_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0356145" />
+            <inertia ixx="1.0202e-06" iyy="2.41886e-06" izz="2.32867e-06" ixy="1.00639e-07"
+                iyz="9.67661e-09" ixz="-1.2126e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.040168 0.000298 -0.182989" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_pinky_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.015" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_pinky_dip" type="revolute">
+        <origin xyz="-0.002195 0.000367 0.020882" rpy="0 0 0" />
+        <parent link="R_pinky_pip_link" />
+        <child link="R_pinky_dip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.30" upper="1.80" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Right ring — 3 phalanges (r=6mm) -->
+    <link name="R_ring_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341665" />
+            <inertia ixx="1.6473e-06" iyy="3.86535e-06" izz="3.64518e-06" ixy="2.91032e-07"
+                iyz="2.54629e-08" ixz="-1.76397e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.014359 0.000670 -0.140268" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_ring_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_ring_mcp" type="revolute">
+        <origin xyz="-0.014359 -0.000670 0.140268" rpy="0 0 0" />
+        <parent link="R_palm" />
+        <child link="R_ring_mcp_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.50" upper="1.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_ring_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.026358" />
+            <inertia ixx="1.37358e-06" iyy="2.38319e-06" izz="2.0594e-06" ixy="6.21354e-08"
+                iyz="5.43689e-09" ixz="-6.06712e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.015820 0.001152 -0.168146" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_ring_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_ring_pip" type="revolute">
+        <origin xyz="-0.001461 -0.000482 0.027878" rpy="0 0 0" />
+        <parent link="R_ring_mcp_link" />
+        <child link="R_ring_pip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.13" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_ring_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0375382" />
+            <inertia ixx="1.07458e-06" iyy="2.76639e-06" izz="2.66311e-06" ixy="8.48278e-08"
+                iyz="8.05918e-09" ixz="-1.43355e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.016919 0.001152 -0.189117" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_ring_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_ring_dip" type="revolute">
+        <origin xyz="-0.001099 -0.000000 0.020971" rpy="0 0 0" />
+        <parent link="R_ring_pip_link" />
+        <child link="R_ring_dip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Right middle — 3 phalanges (r=6mm) -->
+    <link name="R_middle_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341664" />
+            <inertia ixx="1.63785e-06" iyy="3.89093e-06" izz="3.66109e-06" ixy="2.51878e-07"
+                iyz="2.20343e-08" ixz="-1.78619e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.006120 0.000670 -0.141014" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_middle_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_middle_mcp" type="revolute">
+        <origin xyz="0.006120 -0.000670 0.141014" rpy="0 0 0" />
+        <parent link="R_palm" />
+        <child link="R_middle_mcp_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.50" upper="1.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_middle_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0263579" />
+            <inertia ixx="1.37178e-06" iyy="2.40028e-06" izz="2.07446e-06" ixy="4.41806e-08"
+                iyz="3.86405e-09" ixz="-6.21448e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.006120 0.000665 -0.168934" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_middle_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_middle_pip" type="revolute">
+        <origin xyz="-0.000000 0.000005 0.027920" rpy="0 0 0" />
+        <parent link="R_middle_mcp_link" />
+        <child link="R_middle_pip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.13" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_middle_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0471945" />
+            <inertia ixx="1.37841e-06" iyy="4.91849e-06" izz="4.77956e-06" ixy="-3.29886e-08"
+                iyz="-2.05902e-09" ixz="-2.96051e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.006120 0.000298 -0.189931" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_middle_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_middle_dip" type="revolute">
+        <origin xyz="-0.000000 0.000367 0.020997" rpy="0 0 0" />
+        <parent link="R_middle_pip_link" />
+        <child link="R_middle_dip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Right index — 3 phalanges (r=6mm) -->
+    <link name="R_index_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341665" />
+            <inertia ixx="1.64872e-06" iyy="3.8791e-06" izz="3.65895e-06" ixy="2.91696e-07"
+                iyz="-2.47082e-08" ixz="1.76663e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.078728 0.072208 0.042189" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_index_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_index_mcp" type="revolute">
+        <origin xyz="0.026448 -0.000670 0.140799" rpy="-3.124129 -0.034832 -3.137014" />
+        <parent link="R_palm" />
+        <child link="R_index_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.60" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_index_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0263577" />
+            <inertia ixx="2.39364e-06" iyy="1.3821e-06" izz="2.06728e-06" ixy="8.04734e-08"
+                iyz="8.4666e-08" ixz="-9.91465e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.077775 0.066971 0.065147" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_index_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_index_pip" type="revolute">
+        <origin xyz="-0.000002 0.000005 -0.027920" rpy="0 0 0" />
+        <parent link="R_index_mcp_link" />
+        <child link="R_index_pip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.20" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="R_index_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0375387" />
+            <inertia ixx="2.76301e-06" iyy="1.08995e-06" izz="2.65147e-06" ixy="1.14517e-07"
+                iyz="1.97778e-07" ixz="-1.49453e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.076912 0.061698 0.090830" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/R_index_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="R_index_dip" type="revolute">
+        <origin xyz="-0.000001 0.000367 -0.020997" rpy="0 0 0" />
+        <parent link="R_index_pip_link" />
+        <child link="R_index_dip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════
+         LEFT HAND
+         All collision geometries are primitive shapes (box / cylinder / sphere).
+         Visual meshes are unchanged.
+    ══════════════════════════════════════════════════════════════════════════ -->
+
+    <!-- Palm: flat box -->
+    <link name="L_palm">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="2.07081" />
+            <inertia ixx="0.00301129" iyy="0.00368401" izz="0.00108174" ixy="1.11599e-05"
+                iyz="-5.74594e-06" ixz="-0.000227995" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_palm.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 -0.09" rpy="0 0 0" />
+            <geometry>
+                <box size="0.080 0.020 0.090" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="hand_roll_l" type="revolute">
+        <origin xyz="0.003609 -0.034524 -0.153085" rpy="0 0 0" />
+        <parent link="forearm_l" />
+        <child link="L_palm" />
+        <axis xyz="0 0 1" />
+        <limit lower="-3.1416" upper="3.1416" effort="10" velocity="5" />
+        <dynamics damping="0.5" friction="0.1" />
+    </joint>
+
+    <!-- Left thumb — 4 phalanges (r=8mm) -->
+    <link name="L_thumb_yaw_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0209599" />
+            <inertia ixx="1.04104e-06" iyy="4.30916e-07" izz="1.05868e-06" ixy="-1.49239e-09"
+                iyz="-1.70581e-08" ixz="1.55537e-09" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.023000 0.011000 0.055250" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_thumb_yaw_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.013" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.026" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_thumb_yaw" type="revolute">
+        <origin xyz="0.023000 -0.011000 -0.055250" rpy="0 0 0" />
+        <parent link="L_palm" />
+        <child link="L_thumb_yaw_link" />
+        <axis xyz="0 0 1" />
+        <limit lower="-0.75" upper="0.60" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_thumb_cmc_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.24597" />
+            <inertia ixx="6.4317e-05" iyy="2.74482e-05" izz="7.56672e-05" ixy="1.61552e-06"
+                iyz="-1.40788e-07" ixz="9.9991e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.027750 0.023000 0.062080" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_thumb_cmc_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.031 0" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.030" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_thumb_cmc" type="revolute">
+        <origin xyz="0.004750 -0.012000 -0.006830" rpy="0 0 0" />
+        <parent link="L_thumb_yaw_link" />
+        <child link="L_thumb_cmc_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.60" upper="0.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_thumb_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.045886" />
+            <inertia ixx="4.89232e-06" iyy="3.9484e-06" izz="4.52211e-06" ixy="6.85593e-07"
+                iyz="-5.93189e-08" ixz="-3.31246e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.027700 0.085000 0.070080" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_thumb_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.010 0.009" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.008" length="0.019" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_thumb_mcp" type="revolute">
+        <origin xyz="-0.000050 -0.062000 -0.008000" rpy="0 0 0" />
+        <parent link="L_thumb_cmc_link" />
+        <child link="L_thumb_mcp_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="0.00" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_thumb_ip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0744043" />
+            <inertia ixx="7.12669e-06" iyy="3.86309e-06" izz="7.24893e-06" ixy="-3.06851e-07"
+                iyz="2.44217e-08" ixz="1.05295e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.027700 0.104000 0.070080" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_thumb_ip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 -0.010 0.009" rpy="1.5708 0 0" />
+            <geometry>
+                <cylinder radius="0.007" length="0.018" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_thumb_ip" type="revolute">
+        <origin xyz="0.000000 -0.019000 -0.000000" rpy="0 0 0" />
+        <parent link="L_thumb_mcp_link" />
+        <child link="L_thumb_ip_link" />
+        <axis xyz="1 0 0" />
+        <limit lower="-0.13" upper="0.95" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Left index — 3 phalanges (r=6mm) -->
+    <link name="L_index_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341663" />
+            <inertia ixx="1.64646e-06" iyy="3.86483e-06" izz="3.64549e-06" ixy="-2.91033e-07"
+                iyz="-2.54505e-08" ixz="-1.7405e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.034443 0.000670 0.140520" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_index_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_index_mcp" type="revolute">
+        <origin xyz="0.034443 -0.000670 -0.140520" rpy="0 0 0" />
+        <parent link="L_palm" />
+        <child link="L_index_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.50" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_index_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.026358" />
+            <inertia ixx="1.373e-06" iyy="2.38283e-06" izz="2.05962e-06" ixy="-6.21351e-08"
+                iyz="-5.44265e-09" ixz="-5.87851e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.027422 0.001152 0.168698" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_index_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.007 0 -0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_index_pip" type="revolute">
+        <origin xyz="-0.007021 -0.000482 -0.028178" rpy="0 0 0" />
+        <parent link="L_index_mcp_link" />
+        <child link="L_index_pip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.20" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_index_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0375393" />
+            <inertia ixx="1.07464e-06" iyy="2.76658e-06" izz="2.66328e-06" ixy="-8.48254e-08"
+                iyz="-8.05897e-09" ixz="-1.43345e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.036151 0.001152 0.189407" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_index_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.0 0 -0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_index_dip" type="revolute">
+        <origin xyz="0.008728 0.000000 -0.020709" rpy="0 0 0" />
+        <parent link="L_index_pip_link" />
+        <child link="L_index_dip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Left middle — 3 phalanges (r=6mm) -->
+    <link name="L_middle_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341664" />
+            <inertia ixx="1.63785e-06" iyy="3.89093e-06" izz="3.66109e-06" ixy="-2.51878e-07"
+                iyz="-2.20343e-08" ixz="-1.78619e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.014120 0.000670 0.141014" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_middle_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_middle_mcp" type="revolute">
+        <origin xyz="0.014120 -0.000670 -0.141014" rpy="0 0 0" />
+        <parent link="L_palm" />
+        <child link="L_middle_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.50" upper="1.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_middle_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0263577" />
+            <inertia ixx="1.37177e-06" iyy="2.40027e-06" izz="2.07445e-06" ixy="-4.41761e-08"
+                iyz="-3.86349e-09" ixz="-6.21441e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.006120 0.000665 0.168934" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_middle_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.007 0 -0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_middle_pip" type="revolute">
+        <origin xyz="-0.008000 0.000005 -0.027920" rpy="0 0 0" />
+        <parent link="L_middle_mcp_link" />
+        <child link="L_middle_pip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.20" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_middle_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0471963" />
+            <inertia ixx="1.37844e-06" iyy="4.91857e-06" izz="4.77962e-06" ixy="3.29026e-08"
+                iyz="2.0756e-09" ixz="-2.96187e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="-0.014120 0.000298 0.189931" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_middle_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_middle_dip" type="revolute">
+        <origin xyz="0.008000 0.000367 -0.020997" rpy="0 0 0" />
+        <parent link="L_middle_pip_link" />
+        <child link="L_middle_dip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Left ring — 3 phalanges (r=6mm) -->
+    <link name="L_ring_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341663" />
+            <inertia ixx="1.64724e-06" iyy="3.86533e-06" izz="3.64522e-06" ixy="-2.91033e-07"
+                iyz="2.54612e-08" ixz="1.76402e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.006370 0.000670 0.140687" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_ring_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.014" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.028" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_ring_mcp" type="revolute">
+        <origin xyz="-0.006370 -0.000670 -0.140687" rpy="0 0 0" />
+        <parent link="L_palm" />
+        <child link="L_ring_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.50" upper="1.70" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_ring_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.026358" />
+            <inertia ixx="1.37358e-06" iyy="2.38319e-06" izz="2.0594e-06" ixy="-6.21354e-08"
+                iyz="5.43689e-09" ixz="6.06712e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.015820 0.001152 0.168146" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_ring_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.008 0 -0.011" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_ring_pip" type="revolute">
+        <origin xyz="-0.009450 -0.000482 -0.027459" rpy="0 0 0" />
+        <parent link="L_ring_mcp_link" />
+        <child link="L_ring_pip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.20" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_ring_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0375393" />
+            <inertia ixx="1.07464e-06" iyy="2.76658e-06" izz="2.66327e-06" ixy="-8.48254e-08"
+                iyz="8.0589e-09" ixz="1.43357e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.016919 0.001152 0.189117" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_ring_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.008 0 -0.009" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_ring_dip" type="revolute">
+        <origin xyz="-0.001099 -0.000000 -0.020971" rpy="0 0 0" />
+        <parent link="L_ring_pip_link" />
+        <child link="L_ring_dip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.30" upper="1.90" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- Left pinky — 3 phalanges (r=6mm) -->
+    <link name="L_pinky_mcp_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0341663" />
+            <inertia ixx="1.63784e-06" iyy="3.87534e-06" izz="3.6456e-06" ixy="-2.51823e-07"
+                iyz="2.20344e-08" ixz="1.784e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.027098 0.000670 0.135175" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_pinky_mcp_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 -0.02" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.026" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_pinky_mcp" type="revolute">
+        <origin xyz="-0.027098 -0.000670 -0.135175" rpy="0 0 0" />
+        <parent link="L_palm" />
+        <child link="L_pinky_mcp_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.50" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_pinky_pip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.026358" />
+            <inertia ixx="1.37179e-06" iyy="2.38528e-06" izz="2.05956e-06" ixy="-4.42896e-08"
+                iyz="3.8686e-09" ixz="6.17785e-08" />
+        </inertial>
+        <visual>
+            <origin xyz="0.037973 0.000665 0.162106" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_pinky_pip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.008 0 -0.017" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.006" length="0.021" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_pinky_pip" type="revolute">
+        <origin xyz="-0.010875 0.000005 -0.026932" rpy="0 0 0" />
+        <parent link="L_pinky_mcp_link" />
+        <child link="L_pinky_pip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.20" upper="1.57" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <link name="L_pinky_dip_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <mass value="0.0356145" />
+            <inertia ixx="1.0202e-06" iyy="2.41886e-06" izz="2.32867e-06" ixy="-1.00639e-07"
+                iyz="9.67661e-09" ixz="1.2126e-07" />
+        </inertial>
+        <visual>
+            <origin xyz="0.032212 0.000298 0.183824" rpy="0 0 0" />
+            <geometry>
+                <mesh filename="${xp_mesh}/L_pinky_dip_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <material name="silver" />
+        </visual>
+        <collision>
+            <origin xyz="0.002 0 -0.015" rpy="0 0 0" />
+            <geometry>
+                <cylinder radius="0.005" length="0.016" />
+            </geometry>
+        </collision>
+    </link>
+    <joint name="L_pinky_dip" type="revolute">
+        <origin xyz="0.005761 0.000367 -0.021718" rpy="0 0 0" />
+        <parent link="L_pinky_pip_link" />
+        <child link="L_pinky_dip_link" />
+        <axis xyz="-1 0 0" />
+        <limit lower="-0.30" upper="1.80" effort="5" velocity="5" />
+        <dynamics damping="0.1" friction="0.0" />
+    </joint>
+
+    <!-- ══ ROS 2 CONTROL PLUGIN ══ -->
+    <xacro:include filename="$(find full_body_fake_hardware)/urdf/full_body.ros2_control.xacro" />
+    <xacro:full_body_fake_ros2_control name="FullBodyFakeSystem" />
+
+</robot>

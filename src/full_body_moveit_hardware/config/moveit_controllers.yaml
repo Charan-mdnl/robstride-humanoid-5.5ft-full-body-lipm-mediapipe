@@ -1,0 +1,63 @@
+# moveit_controllers.yaml
+# Maps MoveIt planning groups to the ros2_control JointTrajectoryControllers
+# running inside full_body_hardware (fake/real hardware plugin).
+#
+# Controller names MUST match what full_body_controllers.yaml registers.
+# MoveIt finds a controller that "covers" all joints in the requested group:
+#   • right_arm / left_arm   → right_arm_controller / left_arm_controller
+#   • right_leg / left_leg   → lower_body_controller (covers all 12 leg joints)
+#   • torso                  → torso_controller
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - lower_body_controller
+    - torso_controller
+    - left_arm_controller
+    - right_arm_controller
+
+  lower_body_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - hip_pitch_r
+      - hip_roll_r
+      - thigh_yaw_r
+      - knee_pitch_r
+      - ankle_pitch_r
+      - ankle_roll_r
+      - hip_pitch_l
+      - hip_roll_l
+      - thigh_yaw_l
+      - knee_pitch_l
+      - ankle_pitch_l
+      - ankle_roll_l
+
+  torso_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - torso_yaw
+
+  left_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - shoulder_pitch_l
+      - shoulder_roll_l
+      - elbow_yaw_l
+      - elbow_pitch_l
+
+  right_arm_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - shoulder_pitch_r
+      - shoulder_roll_r
+      - elbow_yaw_r
+      - elbow_pitch_r

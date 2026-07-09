@@ -1,0 +1,33 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/me/mujoco_ws/install/mujoco_ros2_control/local/lib/python3.10/dist-packages",
+        "/home/me/mujoco_ws/install/Angad_Full_Assembly_description/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
+        "/home/me/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/red_box_moveit_pkg/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/realsense2_camera_msgs/local/lib/python3.10/dist-packages",
+        "/home/me/ros2_ws/install/camera_calibration/lib/python3.10/site-packages",
+        "/home/me/msp2_moveit/msp2/install/Angad_Full_Assembly_description/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/me/mujoco_ws/install/mujoco_ros2_control/local/lib/python3.10/dist-packages",
+        "/home/me/mujoco_ws/install/Angad_Full_Assembly_description/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
+        "/home/me/ros2_ws/install/uf_ros_lib/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/red_box_moveit_pkg/lib/python3.10/site-packages",
+        "/home/me/ros2_ws/install/realsense2_camera_msgs/local/lib/python3.10/dist-packages",
+        "/home/me/ros2_ws/install/camera_calibration/lib/python3.10/site-packages",
+        "/home/me/msp2_moveit/msp2/install/Angad_Full_Assembly_description/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python-envs.pythonProjects": [
+        {
+            "path": "Angad_Full_Assembly_description",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
+}

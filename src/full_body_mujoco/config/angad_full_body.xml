@@ -1,0 +1,1489 @@
+<!--
+  angad_full_body.xml
+  =====================
+  Complete Angad humanoid robot — lower body (XP_robot meshes) + upper body (XP_robot meshes)
+  integrated into a single MuJoCo scene for use with mujoco_ros2_control.
+
+  COLLISION STRATEGY
+  ──────────────────
+  All geoms use contype=1 / conaffinity=1 — full collision enabled everywhere.
+  Adjacent body pairs are excluded via <contact><exclude> to prevent
+  self-collision instability between parent-child links.
+
+  CONTACT EXCLUSIONS
+  ──────────────────
+  Adjacent parent-child body pairs are excluded via <contact><exclude> so that
+  touching bodies that share a joint never trigger interpenetration penalties.
+
+  ACTUATORS
+  ─────────
+  Position actuators (not motor) are used so that mujoco_ros2_control can drive
+  them through the standard position command interface. kp values are tuned for
+  ~100 N·m/rad stiffness at the hip/knee and lighter at the ankle/arm.
+
+  ROS 2 CONTROL
+  ─────────────
+  The <ros2_control> block is embedded directly (not via xacro include) because
+  this is a pure MuJoCo XML file. The URDF-based ros2_control xacro block in
+  full_body.ros2_control.xacro is used by the RSP node for TF; this file is
+  passed as robot_model_path to mujoco_ros2_control.
+
+  MESHDIR
+  ───────
+  All meshes come from XP_robot/meshes/. The launch file sets the absolute
+  meshdir at runtime by copying this template and replacing the placeholder, or
+  by passing it via the compiler override. Here we use a placeholder path that
+  the launch file resolves via package:// path expansion.
+  → Set meshdir to the absolute path of XP_robot/meshes on your machine.
+    Launch file injects it automatically — do NOT edit this manually.
+-->
+<mujoco model="angad_full_body">
+
+    <!-- ═══════════════════════════════════════════════════════
+       COMPILER
+  ═══════════════════════════════════════════════════════ -->
+    <compiler
+        meshdir="MESHDIR_PLACEHOLDER"
+        angle="radian"
+        inertiafromgeom="false" />
+
+    <!-- ═══════════════════════════════════════════════════════
+       SOLVER / PHYSICS OPTIONS
+  ═══════════════════════════════════════════════════════ -->
+    <option
+        gravity="0 0 -9.81"
+        timestep="0.002"
+        iterations="50"
+        solver="Newton"
+        tolerance="1e-10"
+        cone="elliptic"
+        impratio="20" />
+
+    <!-- Load the 'standing' keyframe so the robot starts in a stable crouch -->
+    <size nkey="1" />
+    <statistic center="0 0 0.8" extent="1.5" />
+
+    <!-- ═══════════════════════════════════════════════════════
+       DEFAULTS
+       - Joints: moderate damping, small armature for realism
+       - Geoms: default to structural group (4); feet override below
+       - Position actuators: individual kp set per actuator
+  ═══════════════════════════════════════════════════════ -->
+    <default>
+        <joint damping="3.0" frictionloss="0.05" armature="0.05" />
+
+        <!-- Visual body geoms: no collision (visual only) -->
+        <geom
+            contype="1"
+            conaffinity="1"
+            friction="0.8 0.02 0.01"
+            condim="3"
+            rgba="0.7 0.7 0.7 1" />
+
+        <motor ctrlrange="-1 1" ctrllimited="true" />
+
+        <!-- Named class overrides — must be nested inside top-level <default> -->
+        <default class="visual_only">
+            <!-- Mesh geoms used for visual rendering only — zero collision -->
+            <geom contype="1" conaffinity="1" />
+        </default>
+
+        <default class="foot_contact">
+            <!-- Foot sole capsules — collide only with ground -->
+            <geom
+                contype="1"
+                conaffinity="1"
+                friction="3.0 0.2 0.05"
+                condim="6"
+                solimp="0.7 0.9 0.01"
+                solref="0.01 2"
+                rgba="0.2 0.8 0.2 0.4" />
+        </default>
+    </default>
+
+    <!-- ═══════════════════════════════════════════════════════
+       VISUAL
+  ═══════════════════════════════════════════════════════ -->
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+        <rgba haze="0.15 0.25 0.35 1" />
+        <global azimuth="120" elevation="-20" />
+    </visual>
+
+    <!-- ═══════════════════════════════════════════════════════
+       ASSETS
+  ═══════════════════════════════════════════════════════ -->
+    <asset>
+        <!-- Lower body mesh assets (from XP_robot/meshes/) -->
+        <mesh name="pelvis" file="pelvis.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_r" file="hip_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_r" file="hip_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_r" file="thigh_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_r" file="leg_shank_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_r" file="uj_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_r" file="foot_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_l" file="hip_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_l" file="hip_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_l" file="thigh_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_l" file="leg_shank_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_l" file="uj_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_l" file="foot_l.stl" scale="0.001 0.001 0.001" />
+
+        <!-- Upper body mesh assets (from XP_robot/meshes/) -->
+        <mesh name="torso" file="torso.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_r" file="shoulder_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_r" file="shoulder_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_r" file="bicep_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_r" file="forearm_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_l" file="shoulder_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_l" file="shoulder_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_l" file="bicep_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_l" file="forearm_l.stl" scale="0.001 0.001 0.001" />
+
+        <!-- Hand mesh assets -->
+        <mesh name="R_palm" file="R_palm.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_thumb_yaw_link" file="R_thumb_yaw_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_thumb_cmc_link" file="R_thumb_cmc_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_thumb_mcp_link" file="R_thumb_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_thumb_ip_link" file="R_thumb_ip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_pinky_mcp_link" file="R_pinky_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_pinky_pip_link" file="R_pinky_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_pinky_dip_link" file="R_pinky_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_ring_mcp_link" file="R_ring_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_ring_pip_link" file="R_ring_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_ring_dip_link" file="R_ring_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_middle_mcp_link" file="R_middle_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_middle_pip_link" file="R_middle_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_middle_dip_link" file="R_middle_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_index_mcp_link" file="R_index_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_index_pip_link" file="R_index_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="R_index_dip_link" file="R_index_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_palm" file="L_palm.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_thumb_yaw_link" file="L_thumb_yaw_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_thumb_cmc_link" file="L_thumb_cmc_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_thumb_mcp_link" file="L_thumb_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_thumb_ip_link" file="L_thumb_ip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_pinky_mcp_link" file="L_pinky_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_pinky_pip_link" file="L_pinky_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_pinky_dip_link" file="L_pinky_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_ring_mcp_link" file="L_ring_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_ring_pip_link" file="L_ring_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_ring_dip_link" file="L_ring_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_middle_mcp_link" file="L_middle_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_middle_pip_link" file="L_middle_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_middle_dip_link" file="L_middle_dip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_index_mcp_link" file="L_index_mcp_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_index_pip_link" file="L_index_pip_link.stl" scale="0.001 0.001 0.001" />
+        <mesh name="L_index_dip_link" file="L_index_dip_link.stl" scale="0.001 0.001 0.001" />
+
+        <!-- Textures / materials -->
+        <texture type="skybox" builtin="gradient"
+            rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge"
+            rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8"
+            width="300" height="300" />
+        <material name="groundplane" texture="groundplane"
+            texuniform="true" texrepeat="5 5" reflectance="0.2" />
+    </asset>
+
+    <!-- ═══════════════════════════════════════════════════════
+       CONTACT EXCLUSIONS
+       Exclude adjacent body pairs so touching geoms don't
+       generate constraint forces through the joint gap.
+  ═══════════════════════════════════════════════════════ -->
+    <contact>
+        <!-- ── Lower body ── -->
+        <exclude body1="pelvis" body2="hip_pitch_r" />
+        <exclude body1="pelvis" body2="hip_pitch_l" />
+        <exclude body1="hip_pitch_r" body2="hip_roll_r" />
+        <exclude body1="hip_pitch_l" body2="hip_roll_l" />
+        <exclude body1="hip_roll_r" body2="thigh_r" />
+        <exclude body1="hip_roll_l" body2="thigh_l" />
+        <exclude body1="thigh_r" body2="leg_shank_r" />
+        <exclude body1="thigh_l" body2="leg_shank_l" />
+        <exclude body1="leg_shank_r" body2="uj_r" />
+        <exclude body1="leg_shank_l" body2="uj_l" />
+        <exclude body1="uj_r" body2="foot_r" />
+        <exclude body1="uj_l" body2="foot_l" />
+
+        <!-- ── Upper body ── -->
+        <exclude body1="pelvis" body2="torso" />
+        <exclude body1="torso" body2="shoulder_pitch_r" />
+        <exclude body1="torso" body2="shoulder_pitch_l" />
+        <exclude body1="shoulder_pitch_r" body2="shoulder_roll_r" />
+        <exclude body1="shoulder_pitch_l" body2="shoulder_roll_l" />
+        <exclude body1="shoulder_roll_r" body2="bicep_r" />
+        <exclude body1="shoulder_roll_l" body2="bicep_l" />
+        <exclude body1="bicep_r" body2="forearm_r" />
+        <exclude body1="bicep_l" body2="forearm_l" />
+
+        <!-- ── Cross-body exclusions (pelvis to thigh — common source of NaN) ── -->
+        <exclude body1="pelvis" body2="thigh_r" />
+        <exclude body1="pelvis" body2="thigh_l" />
+
+        <!-- ── Shank vs foot (3.2cm penetration in standing pose) ── -->
+        <exclude body1="leg_shank_r" body2="foot_r" />
+        <exclude body1="leg_shank_l" body2="foot_l" />
+
+        <!-- ── Hip roll vs finger links ── -->
+        <exclude body1="hip_roll_r" body2="R_pinky_pip_link" />
+        <exclude body1="hip_roll_r" body2="R_pinky_dip_link" />
+        <exclude body1="hip_roll_l" body2="L_pinky_pip_link" />
+        <exclude body1="hip_roll_l" body2="L_pinky_dip_link" />
+
+        <!-- ── Palm vs thumb skip-one links ── -->
+        <exclude body1="R_palm" body2="R_thumb_cmc_link" />
+        <exclude body1="R_palm" body2="R_thumb_mcp_link" />
+        <exclude body1="R_palm" body2="R_thumb_ip_link" />
+        <exclude body1="L_palm" body2="L_thumb_cmc_link" />
+        <exclude body1="L_palm" body2="L_thumb_mcp_link" />
+        <exclude body1="L_palm" body2="L_thumb_ip_link" />
+
+        <!-- ── Arm vs leg self-collision exclusions ── -->
+        <!-- bicep / forearm / hand vs thighs and shanks -->
+        <exclude body1="bicep_r" body2="thigh_r" />
+        <exclude body1="bicep_r" body2="thigh_l" />
+        <exclude body1="bicep_l" body2="thigh_r" />
+        <exclude body1="bicep_l" body2="thigh_l" />
+        <exclude body1="forearm_r" body2="thigh_r" />
+        <exclude body1="forearm_r" body2="thigh_l" />
+        <exclude body1="forearm_l" body2="thigh_r" />
+        <exclude body1="forearm_l" body2="thigh_l" />
+        <exclude body1="forearm_r" body2="leg_shank_r" />
+        <exclude body1="forearm_r" body2="leg_shank_l" />
+        <exclude body1="forearm_l" body2="leg_shank_r" />
+        <exclude body1="forearm_l" body2="leg_shank_l" />
+        <exclude body1="R_palm" body2="thigh_r" />
+        <exclude body1="R_palm" body2="thigh_l" />
+        <exclude body1="L_palm" body2="thigh_r" />
+        <exclude body1="L_palm" body2="thigh_l" />
+        <exclude body1="R_palm" body2="leg_shank_r" />
+        <exclude body1="R_palm" body2="leg_shank_l" />
+        <exclude body1="L_palm" body2="leg_shank_r" />
+        <exclude body1="L_palm" body2="leg_shank_l" />
+        <!-- torso vs upper leg -->
+        <exclude body1="torso" body2="thigh_r" />
+        <exclude body1="torso" body2="thigh_l" />
+        <exclude body1="torso" body2="hip_pitch_r" />
+        <exclude body1="torso" body2="hip_pitch_l" />
+
+        <!-- ── Right hand ── -->
+        <exclude body1="forearm_r" body2="R_palm" />
+        <exclude body1="R_palm" body2="R_thumb_yaw_link" />
+        <exclude body1="R_thumb_yaw_link" body2="R_thumb_cmc_link" />
+        <exclude body1="R_thumb_cmc_link" body2="R_thumb_mcp_link" />
+        <exclude body1="R_thumb_mcp_link" body2="R_thumb_ip_link" />
+        <exclude body1="R_palm" body2="R_pinky_mcp_link" />
+        <exclude body1="R_pinky_mcp_link" body2="R_pinky_pip_link" />
+        <exclude body1="R_pinky_pip_link" body2="R_pinky_dip_link" />
+        <exclude body1="R_palm" body2="R_ring_mcp_link" />
+        <exclude body1="R_ring_mcp_link" body2="R_ring_pip_link" />
+        <exclude body1="R_ring_pip_link" body2="R_ring_dip_link" />
+        <exclude body1="R_palm" body2="R_middle_mcp_link" />
+        <exclude body1="R_middle_mcp_link" body2="R_middle_pip_link" />
+        <exclude body1="R_middle_pip_link" body2="R_middle_dip_link" />
+        <exclude body1="R_palm" body2="R_index_mcp_link" />
+        <exclude body1="R_index_mcp_link" body2="R_index_pip_link" />
+        <exclude body1="R_index_pip_link" body2="R_index_dip_link" />
+
+        <!-- ── Left hand ── -->
+        <exclude body1="forearm_l" body2="L_palm" />
+        <exclude body1="L_palm" body2="L_thumb_yaw_link" />
+        <exclude body1="L_thumb_yaw_link" body2="L_thumb_cmc_link" />
+        <exclude body1="L_thumb_cmc_link" body2="L_thumb_mcp_link" />
+        <exclude body1="L_thumb_mcp_link" body2="L_thumb_ip_link" />
+        <exclude body1="L_palm" body2="L_index_mcp_link" />
+        <exclude body1="L_index_mcp_link" body2="L_index_pip_link" />
+        <exclude body1="L_index_pip_link" body2="L_index_dip_link" />
+        <exclude body1="L_palm" body2="L_middle_mcp_link" />
+        <exclude body1="L_middle_mcp_link" body2="L_middle_pip_link" />
+        <exclude body1="L_middle_pip_link" body2="L_middle_dip_link" />
+        <exclude body1="L_palm" body2="L_ring_mcp_link" />
+        <exclude body1="L_ring_mcp_link" body2="L_ring_pip_link" />
+        <exclude body1="L_ring_pip_link" body2="L_ring_dip_link" />
+        <exclude body1="L_palm" body2="L_pinky_mcp_link" />
+        <exclude body1="L_pinky_mcp_link" body2="L_pinky_pip_link" />
+        <exclude body1="L_pinky_pip_link" body2="L_pinky_dip_link" />
+    </contact>
+
+    <!-- ═══════════════════════════════════════════════════════
+       WORLD BODY
+  ═══════════════════════════════════════════════════════ -->
+    <worldbody>
+        <light pos="0 0 4.0" dir="0 0 -1" directional="true" />
+
+        <!-- Ground: contype=1, conaffinity=1  →  only foot_contact geoms touch it -->
+        <geom name="floor"
+            size="10 10 0.05"
+            pos="0 0 0"
+            type="plane"
+            material="groundplane"
+            contype="1"
+            conaffinity="1"
+            friction="2.0 0.1 0.02"
+            condim="6" />
+
+        <!-- ────────────────────────────────────────────────────
+         PELVIS  (free-floating root)
+         Spawn height: feet at z≈0 → pelvis at z≈0.75
+    ──────────────────────────────────────────────────────── -->
+        <body name="pelvis" pos="0 0 0.76"
+            euler="7.434101676923934e-15 5.1966226177108e-16 4.579669976578509e-16">
+            <freejoint name="root" />
+
+            <geom name="pelvis_vis"
+                type="mesh" mesh="pelvis"
+                pos="0 0 0" euler="0 0 0"
+                contype="1" conaffinity="1" />
+
+            <inertial mass="5.65"
+                pos="-7.29606e-15 1.53753e-14 0.10941"
+                fullinertia="0.0293362 0.035634 0.022212 0 0 0" />
+
+            <site name="imu_site" pos="0 0 0.1" size="0.01" />
+
+            <!-- ── RIGHT LEG ── -->
+            <body name="hip_pitch_r"
+                pos="-0.07429 3.73035e-16 0.06555"
+                euler="3.14159265358972 -1.30899694 3.14159265358972">
+                <joint name="hip_pitch_r" type="hinge"
+                    axis="-8.85254e-08 -2.30932e-14 -1.00000016"
+                    pos="-4.28172e-07 -4.96192e-07 2.45146e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="hip_pitch_r_vis"
+                    type="mesh" mesh="hip_pitch_r" pos="0 0 0" euler="0 0 0"
+                    contype="1" conaffinity="1" />
+
+                <inertial mass="1.56"
+                    pos="-8.145e-05 0.003455 0.07278"
+                    fullinertia="0.003057 0.003802 0.001812 0 0 0" />
+
+                <body name="hip_roll_r"
+                    pos="-0.13822 2.13163e-16 0.11492"
+                    euler="-3.14159265359 1.30899694 1.5707963268">
+                    <joint name="hip_roll_r" type="hinge"
+                        axis="1.0 -2.70282e-16 1.58193e-15"
+                        pos="0.02250 -2.11615e-07 0.14300"
+                        range="-2.35 0.292" limited="true" />
+
+                    <geom name="hip_roll_r_vis"
+                        type="mesh" mesh="hip_roll_r" pos="0 0 0" euler="0 0 0"
+                        contype="1" conaffinity="1" />
+
+                    <inertial mass="1.319"
+                        pos="3.521e-05 -3.037e-08 0.03968"
+                        fullinertia="0.004763 0.004696 0.002727 0 0 0" />
+
+                    <body name="thigh_r"
+                        pos="-0.01158 0.13179 -0.16854"
+                        euler="-4.71845e-15 4.16334e-16 -4.57967e-16">
+                        <joint name="thigh_yaw_r" type="hinge"
+                            axis="-9.48466e-15 8.15551e-15 -1.0"
+                            pos="0.01158 -0.13179 0.16304"
+                            range="-3.1416 3.1416" limited="true" />
+
+                        <geom name="thigh_r_vis"
+                            type="mesh" mesh="thigh_r" pos="0 0 0" euler="0 0 0"
+                            contype="1" conaffinity="1" />
+
+                        <inertial mass="2.3"
+                            pos="0.01437 -0.13463 -0.04238"
+                            fullinertia="0.021712 0.019466 0.003743 0 0 0" />
+
+                        <body name="leg_shank_r"
+                            pos="0.00998 0.01726 0.26583"
+                            euler="-6.9424e-04 -2.81600e-03 1.5714186">
+                            <joint name="knee_pitch_r" type="hinge"
+                                axis="-0.99999956 6.24246e-04 -6.94237e-04"
+                                pos="-0.17756 -5.04259e-04 -0.35291"
+                                range="-1.5708 0.0" limited="true" />
+
+                            <geom name="leg_shank_r_vis"
+                                type="mesh" mesh="leg_shank_r" pos="0 0 0" euler="0 0 0"
+                                contype="1" conaffinity="1" />
+
+                            <inertial mass="1.45"
+                                pos="-0.14872 -0.00406 -0.50123"
+                                fullinertia="0.022969 0.024343 0.002626 1.01e-06 2.29e-05 8.91e-05" />
+
+                            <body name="uj_r"
+                                pos="-0.14857 6.66319e-04 -0.70015"
+                                euler="2.81556e-03 -6.95992e-04 -1.57142">
+                                <joint name="ankle_pitch_r" type="hinge"
+                                    axis="-6.61474e-16 1.0 -3.74710e-14"
+                                    pos="-1.88313e-07 -0.01700 3.23691e-07"
+                                    range="-0.6981 0.6981" limited="true" />
+
+                                <geom name="uj_r_vis"
+                                    type="mesh" mesh="uj_r" pos="0 0 0" euler="0 0 0"
+                                    contype="1" conaffinity="1" />
+
+                                <inertial mass="0.098"
+                                    pos="1.1e-10 -9.45e-14 -5.22e-05"
+                                    fullinertia="1.31203e-05 1.25247e-05 8.64218e-06 -2.79697e-06 4.18106e-09 -2.61111e-09" />
+
+                                <body name="foot_r"
+                                    pos="0.02350 -1.208e-15 -0.03099"
+                                    euler="-4.03011e-14 1.33227e-15 1.5707963">
+                                    <joint name="ankle_roll_r" type="hinge"
+                                        axis="2.12673e-15 -1.0 -2.98746e-11"
+                                        pos="-2.09546e-07 0.04050 0.03099"
+                                        range="-0.3491 0.3491" limited="true" />
+
+                                    <geom name="foot_r_vis" class="visual_only"
+                                        type="mesh" mesh="foot_r" pos="0 0 0" euler="0 0 0" />
+
+                                    <!-- Two contact capsules at the foot sole.
+                                         Foot mesh extents (local frame, mm→m scaled):
+                                           X: ±0.040 (width), Y: -0.062 (heel) to +0.088 (toe)
+                                           Z: -0.009 (sole) to +0.047 (top)
+                                         Capsules aligned along X (foot width) via euler="0 1.5708 0" -->
+                                    <geom name="foot_r_heel"
+                                        class="foot_contact"
+                                        type="capsule" size="0.022 0.038"
+                                        pos="0.0 -0.048 -0.009"
+                                        euler="0 1.5708 0" />
+                                    <geom name="foot_r_toe"
+                                        class="foot_contact"
+                                        type="capsule" size="0.022 0.038"
+                                        pos="0.0 0.075 -0.009"
+                                        euler="0 1.5708 0" />
+
+                                    <inertial mass="0.365"
+                                        pos="-6.58e-11 0.02074 -4.79e-04"
+                                        fullinertia="0.000831069 0.000279103 0.000947667 0 0 -3.3367e-05" />
+                                    <site name="foot_r_site" pos="0 0.015 -0.009" size="0.01" />
+                                    <site name="foot_r_toe_site" pos="0 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_toe_site_2" pos="0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_toe_site_3" pos="-0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site" pos="0 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site_2" pos="0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_r_heel_site_3" pos="-0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+
+            <!-- ── LEFT LEG ── -->
+            <body name="hip_pitch_l"
+                pos="0.07429 -8.88178e-17 0.06555"
+                euler="3.14159265359 1.30899694 -3.14159265359">
+                <joint name="hip_pitch_l" type="hinge"
+                    axis="-8.85254e-08 8.37790e-16 1.00000016"
+                    pos="4.15130e-07 -4.96192e-07 2.93817e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="hip_pitch_l_vis"
+                    type="mesh" mesh="hip_pitch_l" pos="0 0 0" euler="0 0 0"
+                    contype="1" conaffinity="1" />
+
+                <inertial mass="1.56"
+                    pos="-8.145e-05 0.003455 0.07278"
+                    fullinertia="0.003057 0.003802 0.001812 0 0 0" />
+
+                <body name="hip_roll_l"
+                    pos="0.13803 -3.55271e-17 0.11492"
+                    euler="-3.14159265359 -1.30899694 1.5707963268">
+                    <joint name="hip_roll_l" type="hinge"
+                        axis="1.0 -3.43350e-15 4.67704e-15"
+                        pos="0.02250 -4.45388e-07 0.14300"
+                        range="-0.292 2.35" limited="true" />
+
+                    <geom name="hip_roll_l_vis"
+                        type="mesh" mesh="hip_roll_l" pos="0 0 0" euler="0 0 0"
+                        contype="1" conaffinity="1" />
+
+                    <inertial mass="1.319"
+                        pos="3.521e-05 -3.037e-08 0.03968"
+                        fullinertia="0.004763 0.004696 0.002727 0 0 0" />
+
+                    <body name="thigh_l"
+                        pos="-0.01158 0.13179 -0.16854"
+                        euler="-5.77316e-15 -1.74374e-15 1.04916e-15">
+                        <joint name="thigh_yaw_l" type="hinge"
+                            axis="-6.65332e-15 4.07544e-15 -1.0"
+                            pos="0.01158 -0.13179 0.16304"
+                            range="-3.1416 3.1416" limited="true" />
+
+                        <geom name="thigh_l_vis"
+                            type="mesh" mesh="thigh_l" pos="0 0 0" euler="0 0 0"
+                            contype="1" conaffinity="1" />
+
+                        <inertial mass="2.3"
+                            pos="0.01437 -0.13463 -0.04238"
+                            fullinertia="0.021712 0.019466 0.003743 0 0 0" />
+
+                        <body name="leg_shank_l"
+                            pos="0.00998 0.01726 0.26583"
+                            euler="-6.9424e-04 -2.81600e-03 1.5714186">
+                            <joint name="knee_pitch_l" type="hinge"
+                                axis="-0.99999956 6.24246e-04 -6.94237e-04"
+                                pos="-0.17756 -5.04260e-04 -0.35291"
+                                range="-1.5708 0.0" limited="true" />
+
+                            <geom name="leg_shank_l_vis"
+                                type="mesh" mesh="leg_shank_l" pos="0 0 0" euler="0 0 0"
+                                contype="1" conaffinity="1" />
+
+                            <inertial mass="1.45"
+                                pos="-0.14872 -0.00406 -0.50123"
+                                fullinertia="0.022969 0.024343 0.002626 1.01e-06 2.29e-05 8.91e-05" />
+
+                            <body name="uj_l"
+                                pos="-0.14857 6.66319e-04 -0.70015"
+                                euler="-3.13878 6.95992e-04 -1.57017">
+                                <joint name="ankle_pitch_l" type="hinge"
+                                    axis="1.31678e-15 1.0 4.18232e-14"
+                                    pos="1.88313e-07 -0.01700 4.54769e-07"
+                                    range="-0.6981 0.6981" limited="true" />
+
+                                <geom name="uj_l_vis"
+                                    type="mesh" mesh="uj_l" pos="0 0 0" euler="0 0 0"
+                                    contype="1" conaffinity="1" />
+
+                                <inertial mass="0.098"
+                                    pos="1.1e-10 -9.45e-14 -5.22e-05"
+                                    fullinertia="1.31203e-05 1.25247e-05 8.64218e-06 -2.79697e-06 4.1807e-09 -2.61151e-09" />
+
+                                <body name="foot_l"
+                                    pos="-0.02350 -1.06581e-15 0.03099"
+                                    euler="-3.14159265359 1.38778e-17 -1.5707963">
+                                    <joint name="ankle_roll_l" type="hinge"
+                                        axis="-2.73553e-15 -1.0 -2.98778e-11"
+                                        pos="-4.43319e-07 0.04050 0.03099"
+                                        range="-0.3491 0.3491" limited="true" />
+
+                                    <geom name="foot_l_vis" class="visual_only"
+                                        type="mesh" mesh="foot_l" pos="0 0 0" euler="0 0 0" />
+
+                                    <geom name="foot_l_heel"
+                                        class="foot_contact"
+                                        type="capsule" size="0.022 0.038"
+                                        pos="0.0 -0.048 -0.009"
+                                        euler="0 1.5708 0" />
+                                    <geom name="foot_l_toe"
+                                        class="foot_contact"
+                                        type="capsule" size="0.022 0.038"
+                                        pos="0.0 0.075 -0.009"
+                                        euler="0 1.5708 0" />
+
+                                    <inertial mass="0.365"
+                                        pos="-6.58e-11 0.02074 -4.79e-04"
+                                        fullinertia="0.000831069 0.000279103 0.000947667 0 0 3.3367e-05" />
+                                    <site name="foot_l_site" pos="0 0.015 -0.009" size="0.01" />
+                                    <site name="foot_l_toe_site" pos="0 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_toe_site_2" pos="0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_toe_site_3" pos="-0.035 0.075 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site" pos="0 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site_2" pos="0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                    <site name="foot_l_heel_site_3" pos="-0.035 -0.048 -0.009"
+                                        euler="0 0 0" size="0.01" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+
+            <!-- ── TORSO (waist yaw joint) ── -->
+            <body name="torso"
+                pos="2.6956e-15 -2.6645e-16 0.21309"
+                euler="-1.3068e-16 -6.9082e-16 -3.14159265359">
+                <joint name="torso_yaw" type="hinge"
+                    axis="1.71159e-16 7.30343e-15 -1.0"
+                    pos="4.74806e-07 4.96192e-07 4.63614e-07"
+                    range="-3.1416 3.1416" limited="true" />
+
+                <geom name="torso_vis"
+                    type="mesh" mesh="torso" pos="0 0 0" euler="0 0 0"
+                    contype="1" conaffinity="1" />
+
+                <inertial mass="3"
+                    pos="0.00217 0.00139 0.22276"
+                    fullinertia="0.013078 0.017582 0.008998 -6.38905e-06 9.4302e-05 1.19345e-04" />
+
+                <!-- ── RIGHT ARM ── -->
+                <body name="shoulder_pitch_r"
+                    pos="0.22152 -0.00428 0.26547"
+                    euler="-1.578e-30 -3.174e-15 3.14159265359">
+                    <joint name="shoulder_pitch_r" type="hinge"
+                        axis="-1.0 -1.887e-15 -3.003e-15"
+                        pos="0.07550 -0.00428 0.02403"
+                        range="-3.1416 3.1416" limited="true" />
+
+                    <geom name="shoulder_pitch_r_vis"
+                        type="mesh" mesh="shoulder_pitch_r" pos="0 0 0" euler="0 0 0"
+                        contype="1" conaffinity="1" />
+
+                    <inertial mass="1"
+                        pos="0.00218 -0.00191 0.02403"
+                        fullinertia="0.001678 0.002325 0.001469 0 0 0" />
+
+                    <body name="shoulder_roll_r"
+                        pos="1.934e-09 -0.00228 -0.08330"
+                        euler="-6.432e-16 -1.837e-15 -1.5707963268">
+                        <joint name="shoulder_roll_r" type="hinge"
+                            axis="-1.0 -9.973e-14 -6.660e-15"
+                            pos="0.04225 6.894e-08 0.10734"
+                            range="-0.0873 3.3161" limited="true" />
+
+                        <geom name="shoulder_roll_r_vis"
+                            type="mesh" mesh="shoulder_roll_r" pos="0 0 0" euler="0 0 0"
+                            contype="1" conaffinity="1" />
+
+                        <inertial mass="0.64"
+                            pos="3.74e-04 -8.40e-07 0.02539"
+                            fullinertia="0.001678 0.001509 0.000812 0 0 0" />
+
+                        <body name="bicep_r"
+                            pos="-0.00615 1.776e-16 -0.03500"
+                            euler="1.753e-15 3.938e-15 1.5707963268">
+                            <joint name="elbow_yaw_r" type="hinge"
+                                axis="-1.434e-16 -9.394e-15 -1.0"
+                                pos="6.894e-08 -0.00616 0.03100"
+                                range="-3.1416 3.1416" limited="true" />
+
+                            <geom name="bicep_r_vis"
+                                type="mesh" mesh="bicep_r" pos="0 0 0" euler="0 0 0"
+                                contype="1" conaffinity="1" />
+
+                            <inertial mass="0.65"
+                                pos="4.67e-04 -4.749e-03 -0.09020"
+                                fullinertia="0.002378 0.002185 0.000712 0 0 0" />
+
+                            <body name="forearm_r"
+                                pos="-0.00361 0.02837 -0.09891"
+                                euler="-5.175e-28 4.964e-15 9.925e-14">
+                                <joint name="elbow_pitch_r" type="hinge"
+                                    axis="1.0 6.106e-16 4.377e-15"
+                                    pos="-0.02839 -0.03452 -0.00108"
+                                    range="-2.5307 0.0" limited="true" />
+
+                                <geom name="forearm_r_vis"
+                                    type="mesh" mesh="forearm_r" pos="0 0 0" euler="0 0 0"
+                                    contype="1" conaffinity="1" />
+
+                                <inertial mass="0.37"
+                                    pos="0.00311 -0.03400 -0.10268"
+                                    fullinertia="0.001221 0.001302 0.000309 -1.25e-07 2.43e-05 -1.4e-05" />
+
+                                <!-- ── RIGHT HAND ── -->
+                                <body name="R_palm"
+                                    pos="0.0036089650140927886 -0.03452402730820088 -0.15308493770589138"
+                                    euler="-3.141592653589793 -5.551115123125796e-17 -3.1415926535897913">
+                                    <joint name="hand_roll_r" type="hinge"
+                                        axis="2.299603559796637e-07 -4.244977434454506e-15 1.0000003231804147"
+                                        pos="-5.963542926406154e-08 2.5959215704805795e-07 8.476925694765061e-08"
+                                        range="-3.1416 3.1416" limited="true" />
+                                    <geom name="R_palm_vis"
+                                        type="mesh" mesh="R_palm" pos="0 0 0" euler="0 0 0"
+                                        contype="1" conaffinity="1" />
+                                    <inertial mass="0.25"
+                                        pos="0.0008531653794785193 0.00035863800553280386 0.07197100707493316"
+                                        fullinertia="3.637e-04 4.450e-04 1.307e-04 -1.346e-06 2.754e-05 -7.18e-07" />
+
+                                    <!-- Thumb -->
+                                    <body name="R_thumb_yaw_link"
+                                        pos="0.05550000000000054 -0.0422114361345242 0.14373966145059044"
+                                        euler="-3.1415926535897816 -3.469446951953629e-16 3.141592653589788">
+                                        <joint name="R_thumb_yaw" type="hinge"
+                                            axis="2.2996036215527926e-07 -8.506110282231473e-16 1.0000003231804102"
+                                            pos="0.03249987786335996 0.03121169572668314 0.08848973643312759"
+                                            range="-0.75 0.6" limited="true" />
+                                        <geom name="R_thumb_yaw_link_vis"
+                                            type="mesh" mesh="R_thumb_yaw_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0209599"
+                                            pos="0.03249999999999846 0.02709263737851786 0.08291891727065721"
+                                            fullinertia="1.04104e-06 4.30916e-07 1.05868e-06 -1.49239e-09 1.55537e-09 -1.70581e-08" />
+                                        <body name="R_thumb_cmc_link"
+                                            pos="-1.4210854715202004e-16 5.329070518200751e-17 -7.105427357601002e-17"
+                                            euler="1.1044052673094162e-29 -2.359223927328457e-16 -9.99200722162666e-16">
+                                            <joint name="R_thumb_cmc" type="hinge"
+                                                axis="1.0000003231804142 -1.7712371817522941e-13 -2.2996037506162192e-07"
+                                                pos="0.03725022548051603 0.01921169572668234 0.08165976641004857"
+                                                range="-0.7 0.6" limited="true" />
+                                            <geom name="R_thumb_cmc_link_vis"
+                                                type="mesh" mesh="R_thumb_cmc_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.24597"
+                                                pos="0.032500180773423495 -0.00968381129882999 0.0803133825300017"
+                                                fullinertia="6.4318e-05 2.74467e-05 7.56675e-05 -1.61748e-06 9.99262e-07 1.41715e-07" />
+                                            <body name="R_thumb_mcp_link"
+                                                pos="1.4210854715202004e-16 7.105427357601002e-17 -7.105427357601002e-17"
+                                                euler="4.733165431326071e-30 -2.7755575615628914e-17 -1.262177448353619e-28">
+                                                <joint name="R_thumb_mcp" type="hinge"
+                                                    axis="1.0000003231804142 -1.7712371817522931e-13 -2.299603750893775e-07"
+                                                    pos="0.037200263532015734 -0.042788304273317423 0.07365997029991532"
+                                                    range="-0.0 1.57" limited="true" />
+                                                <geom name="R_thumb_mcp_link_vis"
+                                                    type="mesh" mesh="R_thumb_mcp_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.045886"
+                                                    pos="0.0325002234585811 -0.04953483131970168 0.07760299259184701"
+                                                    fullinertia="4.89396e-06 3.94772e-06 4.52352e-06 -6.88571e-07 -3.34623e-08 6.07438e-08" />
+                                                <body name="R_thumb_ip_link"
+                                                    pos="-1.4210854715202004e-16 -1.5987211554602254e-16 -7.105427357601002e-17"
+                                                    euler="-3.155443620884047e-29 1.1796119636642288e-15 -8.778139907399896e-16">
+                                                    <joint name="R_thumb_ip" type="hinge"
+                                                        axis="1.0000003231804142 -1.7624590390079705e-13 -2.2996037390976554e-07"
+                                                        pos="0.03720026353201246 -0.06178830427331714 0.07365997029991535"
+                                                        range="-0.13 0.95" limited="true" />
+                                                    <geom name="R_thumb_ip_link_vis"
+                                                        type="mesh" mesh="R_thumb_ip_link"
+                                                        pos="0 0 0" euler="0 0 0"
+                                                        contype="1" conaffinity="1" />
+                                                    <inertial mass="0.0744043"
+                                                        pos="0.03249451457528421 -0.07734421749618345 0.07789906721257735"
+                                                        fullinertia="7.12656e-06 3.86313e-06 7.24882e-06 3.07082e-07 1.05486e-08 -2.45329e-08" />
+                                                </body>
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Pinky -->
+                                    <body name="R_pinky_mcp_link"
+                                        pos="7.105427357601002e-17 5.329070518200751e-17 4.263256414560601e-16"
+                                        euler="5.268381769467108e-17 1.998401444325294e-15 4.4779054554852065e-15">
+                                        <joint name="R_pinky_mcp" type="hinge"
+                                            axis="-0.9945222344751896 -1.7716082875186853e-13 -0.10452808494586394"
+                                            pos="-0.03505486669676336 -0.00066974040785064 0.13433905737174556"
+                                            range="-1.57 0.5" limited="true" />
+                                        <geom name="R_pinky_mcp_link_vis"
+                                            type="mesh" mesh="R_pinky_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341665"
+                                            pos="-0.03204188200779354 -0.0005077871389705769 0.1439374521100769"
+                                            fullinertia="1.63791e-06 3.87536e-06 3.64555e-06 2.51823e-07 -1.78403e-07 2.20362e-08" />
+                                        <body name="R_pinky_pip_link"
+                                            pos="0.0 3.552713678800501e-17 0.0"
+                                            euler="-2.46124602428956e-28 1.5265566588595922e-16 -5.270661621355203e-16">
+                                            <joint name="R_pinky_pip" type="hinge"
+                                                axis="-0.9945222344751878 -1.7770670979073162e-13 -0.10452808494586396"
+                                                pos="-0.037973053229278256 -0.0006647404078514754 0.16210638371695607"
+                                                range="-1.57 0.13" limited="true" />
+                                            <geom name="R_pinky_pip_link_vis"
+                                                type="mesh" mesh="R_pinky_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.026358"
+                                                pos="-0.03486672756545543 0.0011676097496688635 0.17081442951647324"
+                                                fullinertia="1.37179e-06 2.38528e-06 2.05956e-06 4.42896e-08 -6.17785e-08 3.8686e-09" />
+                                            <body name="R_pinky_dip_link"
+                                                pos="5.684341886080802e-16 -1.4210854715202004e-16 -2.842170943040401e-16"
+                                                euler="5.413824773697403e-17 -5.273559366969471e-16 7.541707643468309e-16">
+                                                <joint name="R_pinky_dip" type="hinge"
+                                                    axis="-0.9945222344751933 -1.7694142146614358e-13 -0.10452808494586387"
+                                                    pos="-0.040168404346723544 -0.000297740407851917 0.18298850905110625"
+                                                    range="-1.8 0.3" limited="true" />
+                                                <geom name="R_pinky_dip_link_vis"
+                                                    type="mesh" mesh="R_pinky_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0356145"
+                                                    pos="-0.037574304996105916 0.0016237536137164328 0.19658877178394973"
+                                                    fullinertia="1.0202e-06 2.41886e-06 2.32867e-06 1.00639e-07 -1.2126e-07 9.67661e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Ring -->
+                                    <body name="R_ring_mcp_link"
+                                        pos="-6.394884621840901e-16 5.329070518200751e-17 9.947598300641404e-16"
+                                        euler="4.2903122457335964e-16 5.662137425588336e-15 4.866175954598713e-15">
+                                        <joint name="R_ring_mcp" type="hinge"
+                                            axis="-0.9986296637867511 -1.7802856737125845e-13 -0.05233646613163162"
+                                            pos="-0.014358887959785821 -0.0006697404078469913 0.14026839368524444"
+                                            range="-1.7 0.5" limited="true" />
+                                        <geom name="R_ring_mcp_link_vis"
+                                            type="mesh" mesh="R_ring_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341665"
+                                            pos="-0.010847416065535478 -0.0006688804938168187 0.14969757708583456"
+                                            fullinertia="1.6473e-06 3.86535e-06 3.64518e-06 2.91032e-07 -1.76397e-07 2.54629e-08" />
+                                        <body name="R_ring_pip_link"
+                                            pos="-7.105427357601002e-17 2.1316282072803005e-16 2.842170943040401e-16"
+                                            euler="1.7999624650062404e-15 -7.216449660063518e-16 -6.155261434454781e-16">
+                                            <joint name="R_ring_pip" type="hinge"
+                                                axis="-0.998629663786749 -1.7873879423392256e-13 -0.0523364661316309"
+                                                pos="-0.015820152390761982 -0.0011517404078474481 0.16814611926074163"
+                                                range="-1.57 0.13" limited="true" />
+                                            <geom name="R_ring_pip_link_vis"
+                                                type="mesh" mesh="R_ring_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.026358"
+                                                pos="-0.012263094841042956 0.0005346056843614515 0.1767105965903689"
+                                                fullinertia="1.37358e-06 2.38319e-06 2.0594e-06 6.21354e-08 -6.06712e-08 5.43689e-09" />
+                                            <body name="R_ring_dip_link"
+                                                pos="7.105427357601002e-17 2.495781359357352e-14 -2.842170943040401e-16"
+                                                euler="1.322752883610112e-13 4.3021142204224836e-16 -4.3525720647602345e-16">
+                                                <joint name="R_ring_dip" type="hinge"
+                                                    axis="-0.9986296637867499 -1.8610093102754935e-13 -0.052336466131631315"
+                                                    pos="-0.01691907925010626 -0.001151740407847759 0.18911714254902712"
+                                                    range="-1.9 0.3" limited="true" />
+                                                <geom name="R_ring_dip_link_vis"
+                                                    type="mesh" mesh="R_ring_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0375382"
+                                                    pos="-0.013662343468702598 0.0011595024210088777 0.20312506880334788"
+                                                    fullinertia="1.07458e-06 2.76639e-06 2.66311e-06 8.48278e-08 -1.43355e-07 8.05918e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Middle -->
+                                    <body name="R_middle_mcp_link"
+                                        pos="-9.237055564881303e-16 -1.1191048088221578e-15 8.526512829121202e-16"
+                                        euler="-2.208810534618844e-29 6.786238238021303e-15 1.8340094262495336e-13">
+                                        <joint name="R_middle_mcp" type="hinge"
+                                            axis="-1.000000323180413 -2.61594360184256e-16 2.29960368386406e-07"
+                                            pos="0.006120049015302775 -0.0006697404078432679 0.14101408824090692"
+                                            range="-1.7 0.5" limited="true" />
+                                        <geom name="R_middle_mcp_link_vis"
+                                            type="mesh" mesh="R_middle_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341664"
+                                            pos="0.010120017521693234 -0.0005077919111253678 0.15024210735854315"
+                                            fullinertia="1.63785e-06 3.89093e-06 3.66109e-06 2.51878e-07 -1.78619e-07 2.20343e-08" />
+                                        <body name="R_middle_pip_link"
+                                            pos="7.105427357601002e-17 1.7763568394002505e-17 2.842170943040401e-16"
+                                            euler="3.9443045261050607e-29 6.661338147750942e-16 -3.6285867114002925e-18">
+                                            <joint name="R_middle_pip" type="hinge"
+                                                axis="-1.0000003231804113 -2.652229595946911e-16 2.2996036770639439e-07"
+                                                pos="0.006119640886975947 -0.0006647404078435927 0.1689342974957353"
+                                                range="-1.57 0.13" limited="true" />
+                                            <geom name="R_middle_pip_link_vis"
+                                                type="mesh" mesh="R_middle_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.0263579"
+                                                pos="0.010120009096655069 0.0011677067264986949 0.17726679817630578"
+                                                fullinertia="1.37178e-06 2.40028e-06 2.07446e-06 4.41806e-08 -6.21448e-08 3.86405e-09" />
+                                            <body name="R_middle_dip_link"
+                                                pos="1.4210854715202004e-16 0.0 -1.4210854715202004e-16"
+                                                euler="-5.837570698635484e-29 -9.436895709313825e-16 8.83927518806736e-17">
+                                                <joint name="R_middle_dip" type="hinge"
+                                                    axis="-1.0000003231804104 -1.7683016063175287e-16 2.2996036866396175e-07"
+                                                    pos="0.006119640513430304 -0.0002977404078437848 0.18993119700494845"
+                                                    range="-1.9 0.3" limited="true" />
+                                                <geom name="R_middle_dip_link_vis"
+                                                    type="mesh" mesh="R_middle_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0471945"
+                                                    pos="0.010089390187396744 0.002417748150694583 0.20690740850228775"
+                                                    fullinertia="1.37841e-06 4.91849e-06 4.77956e-06 -3.29886e-08 -2.96051e-07 -2.05902e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Index -->
+                                    <body name="R_index_mcp_link"
+                                        pos="0.10398918025043599 0.0719504666965525 0.09714435755858034"
+                                        euler="-3.1241289045430625 -0.0348319769672797 -3.1370136013847687">
+                                        <joint name="R_index_mcp" type="hinge"
+                                            axis="0.9999919263595433 -0.003969601520761709 -6.896723813111516e-05"
+                                            pos="0.07872837766887537 -0.07220805591828629 -0.042188516758762895"
+                                            range="-1.57 0.6" limited="true" />
+                                        <geom name="R_index_mcp_link_vis"
+                                            type="mesh" mesh="R_index_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341665"
+                                            pos="0.07472780204135986 -0.07202990684910549 -0.05141665769100733"
+                                            fullinertia="1.64872e-06 3.8791e-06 3.65895e-06 2.91696e-07 1.76663e-07 -2.47082e-08" />
+                                        <body name="R_index_pip_link"
+                                            pos="0.0009512073041814518 -0.0052313015091508324 -0.004961305601580932"
+                                            euler="-7.650130529057723e-14 1.3322676295501884e-15 -2.6020852139652106e-18">
+                                            <joint name="R_index_pip" type="hinge"
+                                                axis="0.9999919263595433 -0.0039696015207617095 -6.896723813010208e-05"
+                                                pos="0.07777537048593881 -0.06697147508194334 -0.06514743968220295"
+                                                range="-1.57 0.2" limited="true" />
+                                            <geom name="R_index_pip_link_vis"
+                                                type="mesh" mesh="R_index_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.0263577"
+                                                pos="0.07378139876570772 -0.06512321136413969 -0.0734800435074768"
+                                                fullinertia="2.39364e-06 1.3821e-06 2.06728e-06 8.04734e-08 -9.91465e-09 8.4666e-08" />
+                                            <body name="R_index_dip_link"
+                                                pos="0.0008631329072302662 -0.004907289883510941 0.00468544614483676"
+                                                euler="3.39867023413376e-14 9.853229343548262e-16 -4.377574691627473e-15">
+                                                <joint name="R_index_dip" type="hinge"
+                                                    axis="0.9999919263595433 -0.003969601520757333 -6.896723812897798e-05"
+                                                    pos="0.07691156402975305 -0.06169767121262032 -0.09083030478853184"
+                                                    range="-1.9 0.3" limited="true" />
+                                                <geom name="R_index_dip_link_vis"
+                                                    type="mesh" mesh="R_index_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0375387"
+                                                    pos="0.07293599702598814 -0.059129845665281164 -0.10460507713128978"
+                                                    fullinertia="2.76301e-06 1.08995e-06 2.65147e-06 1.14517e-07 -1.49453e-08 1.97778e-07" />
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body> <!--
+                                /R_palm -->
+                            </body>
+                        </body>
+                    </body>
+                </body>
+
+                <!-- ── LEFT ARM ── -->
+                <body name="shoulder_pitch_l"
+                    pos="-0.22152 -0.00428 0.31354"
+                    euler="3.14159265359 5.246e-15 8.164e-16">
+                    <joint name="shoulder_pitch_l" type="hinge"
+                        axis="1.0 1.332e-15 5.075e-15"
+                        pos="0.07550 -0.00428 0.02403"
+                        range="-3.1416 3.1416" limited="true" />
+
+                    <geom name="shoulder_pitch_l_vis"
+                        type="mesh" mesh="shoulder_pitch_l" pos="0 0 0" euler="0 0 0"
+                        contype="1" conaffinity="1" />
+
+                    <inertial mass="1"
+                        pos="0.00218 -0.00191 0.02403"
+                        fullinertia="0.001678 0.002325 0.001469 0 0 0" />
+
+                    <body name="shoulder_roll_l"
+                        pos="-1.934e-09 -0.00228 0.13137"
+                        euler="3.14159265359 4.641e-15 1.5707963268">
+                        <joint name="shoulder_roll_l" type="hinge"
+                            axis="-1.0 1.110e-13 -8.011e-15"
+                            pos="0.04225 -2.242e-08 0.10734"
+                            range="-3.3161 0.0873" limited="true" />
+
+                        <geom name="shoulder_roll_l_vis"
+                            type="mesh" mesh="shoulder_roll_l" pos="0 0 0" euler="0 0 0"
+                            contype="1" conaffinity="1" />
+
+                        <inertial mass="0.64"
+                            pos="3.74e-04 -8.40e-07 0.02539"
+                            fullinertia="0.001678 0.001509 0.000812 0 0 0" />
+
+                        <body name="bicep_l"
+                            pos="-0.00615 4.263e-16 -0.03500"
+                            euler="6.620e-16 3.938e-15 1.5707963268">
+                            <joint name="elbow_yaw_l" type="hinge"
+                                axis="1.619e-17 -1.217e-14 -1.0"
+                                pos="-2.242e-08 -0.00616 0.03100"
+                                range="-3.1416 3.1416" limited="true" />
+
+                            <geom name="bicep_l_vis"
+                                type="mesh" mesh="bicep_l" pos="0 0 0" euler="0 0 0"
+                                contype="1" conaffinity="1" />
+
+                            <inertial mass="0.65"
+                                pos="4.67e-04 -4.749e-03 -0.09020"
+                                fullinertia="0.002378 0.002185 0.000712 0 0 0" />
+
+                            <body name="forearm_l"
+                                pos="-0.00361 0.02837 -0.09891"
+                                euler="4.954e-28 4.604e-15 -1.113e-13">
+                                <joint name="elbow_pitch_l" type="hinge"
+                                    axis="1.0 2.637e-16 4.376e-15"
+                                    pos="-0.02839 -0.03452 -0.00108"
+                                    range="-2.5307 0.0" limited="true" />
+
+                                <geom name="forearm_l_vis"
+                                    type="mesh" mesh="forearm_l" pos="0 0 0" euler="0 0 0"
+                                    contype="1" conaffinity="1" />
+
+                                <inertial mass="0.37"
+                                    pos="0.00311 -0.03400 -0.10268"
+                                    fullinertia="0.001221 0.001302 0.000309 -1.25e-07 2.43e-05 -1.4e-05" />
+
+                                <!-- ── LEFT HAND ── -->
+                                <body name="L_palm"
+                                    pos="0.003608965014092849 -0.03452402730820088 -0.15308493770589138"
+                                    euler="-3.155443620884029e-30 -4.163336342344313e-17 -7.230327447871425e-15">
+                                    <joint name="hand_roll_l" type="hinge"
+                                        axis="2.2996038184786016e-07 -1.3311495007287176e-14 -1.0000003231804182"
+                                        pos="1.3539643494274266e-07 2.595921606007869e-07 -1.0217078719296241e-07"
+                                        range="-3.14 3.14" limited="true" />
+                                    <geom name="L_palm_vis"
+                                        type="mesh" mesh="L_palm" pos="0 0 0" euler="0 0 0"
+                                        contype="1" conaffinity="1" />
+                                    <inertial mass="0.25"
+                                        pos="0.0008536285911884232 0.00035696066089417204 -0.07197558027125987"
+                                        fullinertia="3.636e-04 4.450e-04 1.307e-04 1.348e-06 -2.753e-05 -6.94e-07" />
+
+                                    <!-- Thumb -->
+                                    <body name="L_thumb_yaw_link"
+                                        pos="1.6209256159527285e-16 1.7763568394002505e-17 -1.4210854715202004e-16"
+                                        euler="-1.1027214678373069e-15 0.0 1.331053573269248e-15">
+                                        <joint name="L_thumb_yaw" type="hinge"
+                                            axis="2.299603839572839e-07 -1.0644393465411413e-14 -1.0000003231804135"
+                                            pos="0.023000317168500907 -0.010999740407839208 -0.055249942418989346"
+                                            range="-0.75 0.6" limited="true" />
+                                        <geom name="L_thumb_yaw_link_vis"
+                                            type="mesh" mesh="L_thumb_yaw_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0209599"
+                                            pos="0.02299999999999984 -0.01511879875600466 -0.06082074417993049"
+                                            fullinertia="1.04104e-06 4.30916e-07 1.05868e-06 -1.49239e-09 1.55537e-09 -1.70581e-08" />
+                                        <body name="L_thumb_cmc_link"
+                                            pos="7.038813976123492e-16 3.552713678800501e-17 2.842170943040401e-16"
+                                            euler="4.73316543132606e-30 4.427014310692802e-15 -1.431711446771602e-15">
+                                            <joint name="L_thumb_cmc" type="hinge"
+                                                axis="1.000000323180415 3.2711038429369035e-14 2.299603855671073e-07"
+                                                pos="0.027750121129077904 -0.022999740407839135 -0.06207990518141247"
+                                                range="-0.6 0.7" limited="true" />
+                                            <geom name="L_thumb_cmc_link_vis"
+                                                type="mesh" mesh="L_thumb_cmc_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.24597"
+                                                pos="0.022999931680864904 -0.05189534181417582 -0.06342657053684252"
+                                                fullinertia="6.4317e-05 2.74482e-05 7.56672e-05 1.61552e-06 9.9991e-07 -1.40788e-07" />
+                                            <body name="L_thumb_mcp_link"
+                                                pos="-3.397282455352979e-16 5.506706202140776e-16 4.263256414560601e-16"
+                                                euler="-3.1554436208840486e-30 -2.2204460492503143e-15 2.6922908347159947e-15">
+                                                <joint name="L_thumb_mcp" type="hinge"
+                                                    axis="1.0000003231804162 3.001874734524276e-14 2.2996038333278346e-07"
+                                                    pos="0.027699679206075873 -0.08499974040784018 -0.07007995146955359"
+                                                    range="0.0 1.57" limited="true" />
+                                                <geom name="L_thumb_mcp_link_vis"
+                                                    type="mesh" mesh="L_thumb_mcp_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.045886"
+                                                    pos="0.0230001536924953 -0.09174655430195724 -0.0661376456429581"
+                                                    fullinertia="4.89232e-06 3.9484e-06 4.52211e-06 6.85593e-07 -3.31246e-08 -5.93189e-08" />
+                                                <body name="L_thumb_ip_link"
+                                                    pos="8.215650382226158e-17 -1.2789769243681803e-15 4.263256414560601e-16"
+                                                    euler="-1.577721810442017e-30 -3.4694469519535994e-16 -2.702655263676108e-15">
+                                                    <joint name="L_thumb_ip" type="hinge"
+                                                        axis="1.0000003231804218 3.272140298505251e-14 2.2996038298583876e-07"
+                                                        pos="0.027699679206076654 -0.10399974040783781 -0.07007995146955412"
+                                                        range="-0.13 0.95" limited="true" />
+                                                    <geom name="L_thumb_ip_link_vis"
+                                                        type="mesh" mesh="L_thumb_ip_link"
+                                                        pos="0 0 0" euler="0 0 0"
+                                                        contype="1" conaffinity="1" />
+                                                    <inertial mass="0.0744043"
+                                                        pos="0.023005472571754223 -0.11955564385517536 -0.06584056095006972"
+                                                        fullinertia="7.12669e-06 3.86309e-06 7.24893e-06 -3.06851e-07 1.05295e-08 2.44217e-08" />
+                                                </body>
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Index -->
+                                    <body name="L_index_mcp_link"
+                                        pos="-3.26405569239796e-16 -8.881784197001253e-17 2.842170943040401e-16"
+                                        euler="5.140058556363343e-16 -4.163336342344335e-17 1.2030128804620424e-29">
+                                        <joint name="L_index_mcp" type="hinge"
+                                            axis="0.9993906460250823 3.3072994709597104e-14 0.03489916782052599"
+                                            pos="0.0344431092360865 -0.0006697404078401487 -0.14051972472607702"
+                                            range="-1.57 0.5" limited="true" />
+                                        <geom name="L_index_mcp_link_vis"
+                                            type="mesh" mesh="L_index_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341663"
+                                            pos="0.030768676939253087 -0.0006688873258578084 -0.14988621191772633"
+                                            fullinertia="1.64646e-06 3.86483e-06 3.64549e-06 -2.91033e-07 -1.7405e-07 -2.54505e-08" />
+                                        <body name="L_index_pip_link"
+                                            pos="-2.2870594307278225e-16 -8.881784197001253e-17 5.684341886080802e-16"
+                                            euler="2.982375632687631e-16 0.0 2.228532057249359e-29">
+                                            <joint name="L_index_pip" type="hinge"
+                                                axis="0.9993906460250821 3.308340295236798e-14 0.03489916782052599"
+                                                pos="0.027422489526915363 -0.001151740407840741 -0.1686980644908537"
+                                                range="-1.57 0.2" limited="true" />
+                                            <geom name="L_index_pip_link_vis"
+                                                type="mesh" mesh="L_index_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.026358"
+                                                pos="0.031712617656736615 0.0005346056805411752 -0.1769198259523458"
+                                                fullinertia="1.373e-06 2.38283e-06 2.05962e-06 -6.21351e-08 -5.87851e-08 -5.44265e-09" />
+                                            <body name="L_index_dip_link"
+                                                pos="-6.88338275267597e-17 -7.993605777301127e-16 -5.684341886080802e-16"
+                                                euler="3.777675801404449e-15 -1.3877787807814454e-17 -2.0115953083135793e-29">
+                                                <joint name="L_index_dip" type="hinge"
+                                                    axis="0.9993906460250823 3.321524069413275e-14 0.034899167820525975"
+                                                    pos="0.03615083640422554 -0.0011517404078406734 -0.18940659224608863"
+                                                    range="-1.9 0.3" limited="true" />
+                                                <geom name="L_index_dip_link_vis"
+                                                    type="mesh" mesh="L_index_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0375393"
+                                                    pos="0.03262054536855928 0.001159395369320455 -0.2033555017157035"
+                                                    fullinertia="1.07464e-06 2.76658e-06 2.66328e-06 -8.48254e-08 -1.43345e-07 -8.05897e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Middle -->
+                                    <body name="L_middle_mcp_link"
+                                        pos="-2.731148640577885e-16 -4.440892098500626e-16 4.263256414560601e-16"
+                                        euler="3.1554436208840465e-30 -2.7755575615628907e-17 6.03782909336906e-14">
+                                        <joint name="L_middle_mcp" type="hinge"
+                                            axis="-1.0000003231804195 2.776792946643214e-14 -2.299603811262152e-07"
+                                            pos="0.014119667148958208 -0.0006697404078412375 -0.1410143020518258"
+                                            range="-0.5 1.7" limited="true" />
+                                        <geom name="L_middle_mcp_link_vis"
+                                            type="mesh" mesh="L_middle_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341664"
+                                            pos="0.010120017521696379 -0.000507791911125505 -0.150242107358546"
+                                            fullinertia="1.63785e-06 3.89093e-06 3.66109e-06 -2.51878e-07 -1.78619e-07 -2.20343e-08" />
+                                        <body name="L_middle_pip_link"
+                                            pos="-2.1094237467877976e-16 3.375077994860476e-16 4.263256414560601e-16"
+                                            euler="-2.9976714398398443e-29 -4.163336342344336e-16 -6.033425333247823e-14">
+                                            <joint name="L_middle_pip" type="hinge"
+                                                axis="-1.0000003231804195 -3.25663433648954e-14 -2.2996038069600377e-07"
+                                                pos="0.006119835918844033 -0.0006647404078413874 -0.16893431489726896"
+                                                range="-0.2 1.57" limited="true" />
+                                            <geom name="L_middle_pip_link_vis"
+                                                type="mesh" mesh="L_middle_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.0263577"
+                                                pos="0.01012000807511174 0.0011676656133943596 -0.17726685387699107"
+                                                fullinertia="1.37177e-06 2.40027e-06 2.07445e-06 -4.41761e-08 -6.21441e-08 -3.86349e-09" />
+                                            <body name="L_middle_dip_link"
+                                                pos="-1.5321077739827162e-16 -8.704148513061227e-16 0.0"
+                                                euler="6.310887241768095e-30 4.3021142204224816e-16 6.05795795471926e-14">
+                                                <joint name="L_middle_dip" type="hinge"
+                                                    axis="-1.0000003231804195 2.8013255760431115e-14 -2.299603811262152e-07"
+                                                    pos="0.014120254841785695 -0.00029774040784139776 -0.18993149797161096"
+                                                    range="-0.3 1.9" limited="true" />
+                                                <geom name="L_middle_dip_link_vis"
+                                                    type="mesh" mesh="L_middle_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0471963"
+                                                    pos="0.010089459178677325 0.0024177670856586906 -0.20690787792928422"
+                                                    fullinertia="1.37844e-06 4.91857e-06 4.77962e-06 3.29026e-08 -2.96187e-07 2.0756e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Ring -->
+                                    <body name="L_ring_mcp_link"
+                                        pos="-1.1324274851176597e-16 -1.7763568394002505e-17 -1.4210854715202004e-16"
+                                        euler="-4.2903122457335377e-16 -5.551115123125785e-17 6.508102468073349e-30">
+                                        <joint name="L_ring_mcp" type="hinge"
+                                            axis="-0.9986296637867561 -3.1891457416062634e-14 0.05233646613162056"
+                                            pos="-0.006369799864448737 -0.0006697404078414185 -0.14068728292927696"
+                                            range="-0.5 1.7" limited="true" />
+                                        <geom name="L_ring_mcp_link_vis"
+                                            type="mesh" mesh="L_ring_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341663"
+                                            pos="-0.01084736499822114 -0.0006688873318841574 -0.1496975772616498"
+                                            fullinertia="1.64724e-06 3.86533e-06 3.64522e-06 -2.91033e-07 1.76402e-07 2.54612e-08" />
+                                        <body name="L_ring_pip_link"
+                                            pos="-2.3092638912203257e-16 2.113864638886298e-15 -1.4210854715202004e-16"
+                                            euler="-1.2728033700170743e-14 6.938893903907223e-17 1.0353799381025776e-29">
+                                            <joint name="L_ring_pip" type="hinge"
+                                                axis="-0.9986296637867562 -3.255759772073374e-14 0.052336466131620504"
+                                                pos="-0.01581995735889411 -0.0011517404078420703 -0.1681461366622748"
+                                                range="-0.2 1.57" limited="true" />
+                                            <geom name="L_ring_pip_link_vis"
+                                                type="mesh" mesh="L_ring_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.026358"
+                                                pos="-0.012263094841046578 0.0005346056843612911 -0.17671059659037214"
+                                                fullinertia="1.37358e-06 2.38319e-06 2.0594e-06 -6.21354e-08 6.06712e-08 5.43689e-09" />
+                                            <body name="L_ring_dip_link"
+                                                pos="-3.774758283725532e-16 2.5064395003937533e-14 -1.4210854715202004e-16"
+                                                euler="-1.3227528836101103e-13 -4.1633363423443376e-17 4.417621069237665e-29">
+                                                <joint name="L_ring_dip" type="hinge"
+                                                    axis="-0.9986296637867561 -3.948041887009002e-14 0.05233646613162052"
+                                                    pos="-0.01691888421823755 -0.001151740407842171 -0.1891171599505601"
+                                                    range="-0.3 1.9" limited="true" />
+                                                <geom name="L_ring_dip_link_vis"
+                                                    type="mesh" mesh="L_ring_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0375393"
+                                                    pos="-0.01366223461629031 0.0011593953697354251 -0.20312484062898256"
+                                                    fullinertia="1.07464e-06 2.76658e-06 2.66327e-06 -8.48254e-08 1.43357e-07 8.0589e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+
+                                    <!-- Pinky -->
+                                    <body name="L_pinky_mcp_link"
+                                        pos="-2.8199664825478977e-16 -5.329070518200751e-17 0.0"
+                                        euler="-2.3034738432453536e-28 -5.55111512312578e-17 7.296963373294356e-30">
+                                        <joint name="L_pinky_mcp" type="hinge"
+                                            axis="-0.9945222344752019 -3.104031001894185e-14 0.1045280849458571"
+                                            pos="-0.027098224923102012 -0.0006697404078420399 -0.13517470462255107"
+                                            range="-0.5 1.57" limited="true" />
+                                        <geom name="L_pinky_mcp_link_vis"
+                                            type="mesh" mesh="L_pinky_mcp_link" pos="0 0 0"
+                                            euler="0 0 0"
+                                            contype="1" conaffinity="1" />
+                                        <inertial mass="0.0341663"
+                                            pos="-0.03204182909282166 -0.0005077944702072032 -0.1439374579737046"
+                                            fullinertia="1.63784e-06 3.87534e-06 3.6456e-06 -2.51823e-07 1.784e-07 2.20344e-08" />
+                                        <body name="L_pinky_pip_link"
+                                            pos="-1.2656542480726786e-16 -5.329070518200751e-17 0.0"
+                                            euler="2.4612460242895573e-28 -1.387778780781446e-17 8.480254731125877e-30">
+                                            <joint name="L_pinky_pip" type="hinge"
+                                                axis="-0.9945222344752019 -3.1040310018941807e-14 0.1045280849458571"
+                                                pos="-0.03797285819741011 -0.0006647404078427342 -0.1621064011184887"
+                                                range="-0.2 1.57" limited="true" />
+                                            <geom name="L_pinky_pip_link_vis"
+                                                type="mesh" mesh="L_pinky_pip_link" pos="0 0 0"
+                                                euler="0 0 0"
+                                                contype="1" conaffinity="1" />
+                                            <inertial mass="0.026358"
+                                                pos="-0.03486672756545927 0.0011676097496687017 -0.1708144295164759"
+                                                fullinertia="1.37179e-06 2.38528e-06 2.05956e-06 -4.42896e-08 6.17785e-08 3.8686e-09" />
+                                            <body name="L_pinky_dip_link"
+                                                pos="-3.0864200084579355e-16 1.4210854715202004e-16 1.4210854715202004e-16"
+                                                euler="-1.38159238986932e-15 -4.1633363423443364e-17 3.194886666145098e-29">
+                                                <joint name="L_pinky_dip" type="hinge"
+                                                    axis="-0.9945222344752019 -3.118472522563059e-14 0.10452808494585715"
+                                                    pos="-0.032211762573059854 -0.0002977404078427166 -0.18382415630191176"
+                                                    range="-0.3 1.8" limited="true" />
+                                                <geom name="L_pinky_dip_link_vis"
+                                                    type="mesh" mesh="L_pinky_dip_link" pos="0 0 0"
+                                                    euler="0 0 0"
+                                                    contype="1" conaffinity="1" />
+                                                <inertial mass="0.0356145"
+                                                    pos="-0.037574304996103106 0.0016237536137163806 -0.1965887717839548"
+                                                    fullinertia="1.0202e-06 2.41886e-06 2.32867e-06 -1.00639e-07 1.2126e-07 9.67661e-09" />
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body> <!--
+                                /L_palm -->
+                            </body>
+                        </body>
+                    </body>
+                </body>
+
+            </body> <!--
+            /torso -->
+
+        </body> <!--
+        /pelvis -->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             Visualisation markers (mocap bodies, no collision).
+             Positions are updated by the MujocoMarkerPlugin via
+             data->mocap_pos every simulation step.
+             Initial pos=-10 hides them until the ROS node is running.
+        ═══════════════════════════════════════════════════════════════ -->
+        <body name="viz_foot_r" mocap="true" pos="0 0 0.5">
+            <geom type="sphere" size="0.05" rgba="1 0.5 0 0.85"
+                contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_foot_l" mocap="true" pos="0 0 0.5">
+            <geom type="sphere" size="0.05" rgba="0 0.9 0.9 0.85"
+                contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_target" mocap="true" pos="0 0 0.5">
+            <geom type="sphere" size="0.06" rgba="1 0 0 0.85"
+                contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_swing" mocap="true" pos="0 0 0.5">
+            <geom type="sphere" size="0.04" rgba="1 1 0 0.85"
+                contype="0" conaffinity="0" />
+        </body>
+        <!-- Footstep landing cubes: right (orange), left (cyan) -->
+        <body name="viz_step_r0" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="1 0.5 0 0.6" contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_step_r1" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="1 0.5 0 0.6" contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_step_r2" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="1 0.5 0 0.6" contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_step_l0" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="0 0.9 0.9 0.6" contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_step_l1" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="0 0.9 0.9 0.6" contype="0" conaffinity="0" />
+        </body>
+        <body name="viz_step_l2" mocap="true" pos="0 0 0.01">
+            <geom type="box" size="0.04 0.02 0.005" rgba="0 0.9 0.9 0.6" contype="0" conaffinity="0" />
+        </body>
+
+    </worldbody>
+
+    <!-- ═══════════════════════════════════════════════════════
+       ACTUATORS
+       Position actuators are required by mujoco_ros2_control.
+       kp is the position servo stiffness [N·m/rad].
+       Joint-level damping (default: 5 N·m·s/rad) acts as kd.
+
+       Tuning guide:
+         kp_hip/knee   ≈ 1000–2000  (heavy joints, high torque)
+         kp_ankle      ≈ 500–800    (moderate, need compliance)
+         kp_torso      ≈ 800        (yaw — lighter load)
+         kp_shoulder   ≈ 800–1200   (arm weight ~3 kg)
+         kp_elbow      ≈ 300–500    (lighter distal)
+  ═══════════════════════════════════════════════════════ -->
+    <actuator>
+        <!-- ── Lower body (with torque limits) ── -->
+        <position name="hip_pitch_r" joint="hip_pitch_r" kp="500" ctrlrange="-150 150" />
+        <position name="hip_roll_r" joint="hip_roll_r" kp="500" ctrlrange="-150 150" />
+        <position name="thigh_yaw_r" joint="thigh_yaw_r" kp="200" ctrlrange="-100 100" />
+        <position name="knee_pitch_r" joint="knee_pitch_r" kp="700" ctrlrange="-200 200" />
+        <position name="ankle_pitch_r" joint="ankle_pitch_r" kp="250" ctrlrange="-100 100" />
+        <position name="ankle_roll_r" joint="ankle_roll_r" kp="500" ctrlrange="-100 100" />
+
+        <position name="hip_pitch_l" joint="hip_pitch_l" kp="500" ctrlrange="-150 150" />
+        <position name="hip_roll_l" joint="hip_roll_l" kp="500" ctrlrange="-150 150" />
+        <position name="thigh_yaw_l" joint="thigh_yaw_l" kp="200" ctrlrange="-100 100" />
+        <position name="knee_pitch_l" joint="knee_pitch_l" kp="700" ctrlrange="-200 200" />
+        <position name="ankle_pitch_l" joint="ankle_pitch_l" kp="250" ctrlrange="-100 100" />
+        <position name="ankle_roll_l" joint="ankle_roll_l" kp="500" ctrlrange="-100 100" />
+
+        <!-- ── Torso ── -->
+        <position name="torso_yaw" joint="torso_yaw" kp="800" />
+
+        <!-- ── Upper body ── -->
+        <position name="shoulder_pitch_r" joint="shoulder_pitch_r" kp="1000" />
+        <position name="shoulder_roll_r" joint="shoulder_roll_r" kp="1000" />
+        <position name="elbow_yaw_r" joint="elbow_yaw_r" kp="400" />
+        <position name="elbow_pitch_r" joint="elbow_pitch_r" kp="300" />
+
+        <position name="shoulder_pitch_l" joint="shoulder_pitch_l" kp="1000" />
+        <position name="shoulder_roll_l" joint="shoulder_roll_l" kp="1000" />
+        <position name="elbow_yaw_l" joint="elbow_yaw_l" kp="400" />
+        <position name="elbow_pitch_l" joint="elbow_pitch_l" kp="300" />
+
+        <!-- ── Right hand ── -->
+        <position name="hand_roll_r" joint="hand_roll_r" kp="100" />
+        <position name="R_thumb_yaw" joint="R_thumb_yaw" kp="20" />
+        <position name="R_thumb_cmc" joint="R_thumb_cmc" kp="20" />
+        <position name="R_thumb_mcp" joint="R_thumb_mcp" kp="20" />
+        <position name="R_thumb_ip" joint="R_thumb_ip" kp="20" />
+        <position name="R_pinky_mcp" joint="R_pinky_mcp" kp="20" />
+        <position name="R_pinky_pip" joint="R_pinky_pip" kp="20" />
+        <position name="R_pinky_dip" joint="R_pinky_dip" kp="20" />
+        <position name="R_ring_mcp" joint="R_ring_mcp" kp="20" />
+        <position name="R_ring_pip" joint="R_ring_pip" kp="20" />
+        <position name="R_ring_dip" joint="R_ring_dip" kp="20" />
+        <position name="R_middle_mcp" joint="R_middle_mcp" kp="20" />
+        <position name="R_middle_pip" joint="R_middle_pip" kp="20" />
+        <position name="R_middle_dip" joint="R_middle_dip" kp="20" />
+        <position name="R_index_mcp" joint="R_index_mcp" kp="20" />
+        <position name="R_index_pip" joint="R_index_pip" kp="20" />
+        <position name="R_index_dip" joint="R_index_dip" kp="20" />
+
+        <!-- ── Left hand ── -->
+        <position name="hand_roll_l" joint="hand_roll_l" kp="100" />
+        <position name="L_thumb_yaw" joint="L_thumb_yaw" kp="20" />
+        <position name="L_thumb_cmc" joint="L_thumb_cmc" kp="20" />
+        <position name="L_thumb_mcp" joint="L_thumb_mcp" kp="20" />
+        <position name="L_thumb_ip" joint="L_thumb_ip" kp="20" />
+        <position name="L_index_mcp" joint="L_index_mcp" kp="20" />
+        <position name="L_index_pip" joint="L_index_pip" kp="20" />
+        <position name="L_index_dip" joint="L_index_dip" kp="20" />
+        <position name="L_middle_mcp" joint="L_middle_mcp" kp="20" />
+        <position name="L_middle_pip" joint="L_middle_pip" kp="20" />
+        <position name="L_middle_dip" joint="L_middle_dip" kp="20" />
+        <position name="L_ring_mcp" joint="L_ring_mcp" kp="20" />
+        <position name="L_ring_pip" joint="L_ring_pip" kp="20" />
+        <position name="L_ring_dip" joint="L_ring_dip" kp="20" />
+        <position name="L_pinky_mcp" joint="L_pinky_mcp" kp="20" />
+        <position name="L_pinky_pip" joint="L_pinky_pip" kp="20" />
+        <position name="L_pinky_dip" joint="L_pinky_dip" kp="20" />
+    </actuator>
+
+    <!-- ═══════════════════════════════════════════════════════
+       SENSORS
+  ═══════════════════════════════════════════════════════ -->
+    <sensor>
+        <gyro name="imu_gyro" site="imu_site" />
+        <accelerometer name="imu_acc" site="imu_site" />
+        <!-- Foot contact forces for future use in the walking controller -->
+        <!-- Removed center foot force sensor for right foot -->
+        <force name="contact_force_r_toe_1" site="foot_r_toe_site" />
+        <force name="contact_force_r_toe_2" site="foot_r_toe_site_2" />
+        <force name="contact_force_r_heel_1" site="foot_r_heel_site" />
+        <force name="contact_force_r_heel_2" site="foot_r_heel_site_2" />
+
+        <!-- Removed center foot force sensor for left foot -->
+        <force name="contact_force_l_toe_1" site="foot_l_toe_site" />
+        <force name="contact_force_l_toe_2" site="foot_l_toe_site_2" />
+        <force name="contact_force_l_heel_1" site="foot_l_heel_site" />
+        <force name="contact_force_l_heel_2" site="foot_l_heel_site_2" />
+    </sensor>
+
+    <!-- ═══════════════════════════════════════════════════════
+       KEYFRAME  — initial standing pose
+       qpos order: freejoint(7) then joints in XML tree order:
+         hip_pitch_r  hip_roll_r  thigh_yaw_r  knee_pitch_r  ankle_pitch_r  ankle_roll_r
+         hip_pitch_l  hip_roll_l  thigh_yaw_l  knee_pitch_l  ankle_pitch_l  ankle_roll_l
+         torso_yaw
+         shoulder_pitch_r  shoulder_roll_r  elbow_yaw_r  elbow_pitch_r
+         shoulder_pitch_l  shoulder_roll_l  elbow_yaw_l  elbow_pitch_l
+       ctrl order mirrors actuator order (same as joints above).
+       Standing crouch: hip −5°, knee −15°, ankle +10° to keep CoM centred.
+  ═══════════════════════════════════════════════════════ -->
+    <keyframe>
+        <key name="standing"
+            qpos="0 0 0.78  1 0 0 0
+                  -0.0873 0.0 0.0  -0.2618  0.1745  0.0
+                  -0.0873 0.0 0.0  -0.2618  0.1745  0.0
+                  0
+                  0  0.3  0  0
+                  0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0
+                  0 -0.3  0  0
+                  0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0"
+            ctrl="-0.0873 0.0 0.0  -0.2618  0.1745  0.0
+                  -0.0873 0.0 0.0  -0.2618  0.1745  0.0
+                  0
+                  0  0.3  0  0
+                  0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0
+                  0 -0.3  0  0
+                  0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0" />
+        <key name="crouching"
+            qpos="0 0 0.70  1 0 0 0
+                0 0 0  -0.25  0  0
+                0 0 0  -0.25  0  0
+                0
+                0  0.15  0  0
+                0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0
+                0 -0.15  0  0
+                0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0"
+            ctrl="0 0 0  -0.25  0  0
+                0 0 0  -0.25  0  0
+                0
+                0  0.15  0  0
+                0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0
+                0 -0.15  0  0
+                0  0 0 0 0  0 0 0  0 0 0  0 0 0  0 0 0" />
+    </keyframe>
+
+</mujoco>

@@ -1,0 +1,31 @@
+# moveit_controllers.yaml
+# MoveIt uses this configuration to send trajectory commands to the real hardware.
+# The action_ns must match what mujoco_ros2_control registers.
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - left_controller
+    - right_controller
+
+  left_controller:
+    type: FollowJointTrajectory
+    # Full action path: /left_controller/follow_joint_trajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - shoulder_pitch_l
+      - shoulder_roll_l
+      - elbow_yaw_l
+      - elbow_pitch_l
+
+  right_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - shoulder_pitch_r
+      - shoulder_roll_r
+      - elbow_yaw_r
+      - elbow_pitch_r

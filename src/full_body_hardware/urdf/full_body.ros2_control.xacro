@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<!--
+  full_body.ros2_control.xacro
+  =============================
+  ros2_control hardware interface for the full Angad humanoid (lower + upper body).
+
+  Two hardware blocks are used:
+    1. real_motors  — RobStrideSystem: shoulder_pitch_r (id=2) + shoulder_roll_r (id=1)
+    2. ${name}_fake — FakeSystem: all remaining joints
+
+  Joint names MUST match the joint names in angad_full_body.xml exactly.
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:macro name="full_body_hardware_ros2_control" params="name use_real_hardware='false'">
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Helper macro: a position-controlled joint (used in both blocks)
+             ═══════════════════════════════════════════════════════════════════ -->
+        <xacro:macro name="ctrl_joint" params="joint_name lower upper">
+            <joint name="${joint_name}">
+                <command_interface name="position">
+                    <param name="min">${lower}</param>
+                    <param name="max">${upper}</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+        </xacro:macro>
+
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Block 1 — REAL MOTORS (RobStrideSystem, CAN)
+             Two RS-03 actuators on can0.
+             ═══════════════════════════════════════════════════════════════════ -->
+        <xacro:if value="${use_real_hardware}">
+        <ros2_control name="real_motors" type="system">
+
+            <hardware>
+                <plugin>full_body_hardware/RobStrideSystem</plugin>
+                <!-- Default bus for joints that omit a per-joint can_interface. -->
+                <param name="can_interface">can2</param>
+                <!-- Worker-thread transaction rate per bus (Hz). -->
+                <param name="update_rate">200</param>
+            </hardware>
+
+            <!-- ══ Left arm → can2  (own socket + own worker thread) ══ -->
+            <!-- shoulder_pitch_l: CAN id=2, RS-03 -->
+            <joint name="shoulder_pitch_l">
+                <param name="motor_id">2</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can2</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_l: CAN id=1, RS-03 -->
+            <joint name="shoulder_roll_l">
+                <param name="motor_id">1</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can2</param>
+                <!-- <param name="invert">true</param> -->
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- elbow_yaw_l: CAN id=3, RS-02 -->
+            <joint name="elbow_yaw_l">
+                <param name="motor_id">3</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can2</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- elbow_pitch_l: CAN id=4, RS-02 -->
+            <joint name="elbow_pitch_l">
+                <param name="motor_id">4</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can2</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- ══ Right arm → can3  (own socket + own worker thread) ══ -->
+            <!-- shoulder_pitch_r: CAN id=12, RS-03 -->
+            <joint name="shoulder_pitch_r">
+                <param name="motor_id">12</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can3</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=11, RS-03 -->
+            <joint name="shoulder_roll_r">
+                <param name="motor_id">11</param>
+                <param name="motor_model">rs03</param>
+                <param name="can_interface">can3</param>
+                <!-- <param name="invert">true</param> -->
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- elbow_yaw_r: CAN id=13, RS-02 -->
+            <joint name="elbow_yaw_r">
+                <param name="motor_id">13</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can3</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- elbow_pitch_r: CAN id=14, RS-02 -->
+            <joint name="elbow_pitch_r">
+                <param name="motor_id">14</param>
+                <param name="motor_model">rs02</param>
+                <param name="can_interface">can3</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+        </ros2_control>
+        </xacro:if>
+  
+        <!-- ═══════════════════════════════════════════════════════════════════
+             Block 2 — FAKE SYSTEM (all remaining joints)
+             Swap this block's plugin for RobStrideSystem entries as more
+             real motors are added during deployment.
+             ═══════════════════════════════════════════════════════════════════ -->
+        <ros2_control name="${name}_fake" type="system">
+
+            <hardware>
+                <plugin>full_body_hardware/FakeSystem</plugin>
+            </hardware>
+
+            <!-- ── Lower body ── -->
+            <xacro:ctrl_joint joint_name="hip_pitch_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="hip_roll_r" lower="-2.35" upper="0.292" />
+            <xacro:ctrl_joint joint_name="thigh_yaw_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="knee_pitch_r" lower="-1.5708" upper="0.0" />
+            <xacro:ctrl_joint joint_name="ankle_pitch_r" lower="-0.6981" upper="0.6981" />
+            <xacro:ctrl_joint joint_name="ankle_roll_r" lower="-0.3491" upper="0.3491" />
+
+            <xacro:ctrl_joint joint_name="hip_pitch_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="hip_roll_l" lower="-0.292" upper="2.35" />
+            <xacro:ctrl_joint joint_name="thigh_yaw_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="knee_pitch_l" lower="-1.5708" upper="0.0" />
+            <xacro:ctrl_joint joint_name="ankle_pitch_l" lower="-0.6981" upper="0.6981" />
+            <xacro:ctrl_joint joint_name="ankle_roll_l" lower="-0.3491" upper="0.3491" />
+
+            <!-- ── Torso ── -->
+            <xacro:ctrl_joint joint_name="torso_yaw" lower="-3.1416" upper="3.1416" />
+
+            <xacro:unless value="${use_real_hardware}">
+            <!-- ── Right arm (remaining) ── -->
+            <xacro:ctrl_joint joint_name="shoulder_pitch_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="shoulder_roll_r" lower="-3.3161" upper="0.0873" />
+            <xacro:ctrl_joint joint_name="elbow_yaw_r" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="elbow_pitch_r" lower="-2.5307" upper="0.0" />
+
+            <!-- ── Left arm ── -->
+            <xacro:ctrl_joint joint_name="shoulder_pitch_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="shoulder_roll_l" lower="-3.3161" upper="0.0873" />
+            <xacro:ctrl_joint joint_name="elbow_yaw_l" lower="-3.1416" upper="3.1416" />
+            <xacro:ctrl_joint joint_name="elbow_pitch_l" lower="-2.5307" upper="0.0" />
+            </xacro:unless>
+
+        </ros2_control>
+
+    </xacro:macro>
+
+</robot>

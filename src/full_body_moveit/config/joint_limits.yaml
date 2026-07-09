@@ -1,0 +1,290 @@
+# joint_limits.yaml
+# Velocity and acceleration limits applied by MoveIt planning.
+# Position limits are read from the URDF <limit> tags.
+
+default_velocity_scaling_factor: 0.2
+default_acceleration_scaling_factor: 0.2
+
+joint_limits:
+  # ── Right leg ──────────────────────────────────────────────
+  hip_pitch_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  hip_roll_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  thigh_yaw_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  knee_pitch_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  ankle_pitch_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  ankle_roll_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  # ── Left leg ───────────────────────────────────────────────
+  hip_pitch_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  hip_roll_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  thigh_yaw_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  knee_pitch_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  ankle_pitch_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  ankle_roll_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  # ── Torso ──────────────────────────────────────────────────
+  torso_yaw:
+    has_velocity_limits: true
+    max_velocity: 3.0
+    has_acceleration_limits: true
+    max_acceleration: 6.0
+  # ── Right arm ──────────────────────────────────────────────
+  shoulder_pitch_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  shoulder_roll_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  elbow_yaw_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  elbow_pitch_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  # ── Left arm ───────────────────────────────────────────────
+  shoulder_pitch_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  shoulder_roll_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  elbow_yaw_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  elbow_pitch_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  # ── Right hand ─────────────────────────────────────────────
+  hand_roll_r:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_thumb_yaw:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_thumb_cmc:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_thumb_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_thumb_ip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_pinky_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_pinky_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_pinky_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_ring_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_ring_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_ring_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_middle_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_middle_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_middle_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_index_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_index_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  R_index_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  # ── Left hand ──────────────────────────────────────────────
+  hand_roll_l:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_thumb_yaw:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_thumb_cmc:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_thumb_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_thumb_ip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_index_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_index_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_index_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_middle_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_middle_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_middle_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_ring_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_ring_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_ring_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_pinky_mcp:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_pinky_pip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0
+  L_pinky_dip:
+    has_velocity_limits: true
+    max_velocity: 5.0
+    has_acceleration_limits: true
+    max_acceleration: 10.0

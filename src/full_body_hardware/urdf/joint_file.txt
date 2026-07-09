@@ -1,0 +1,92 @@
+ <joint name="elbow_yaw_r">
+                <param name="motor_id">3</param>
+                <param name="motor_model">rs02</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=1, RS-03 -->
+            <joint name="elbow_pitch_r">
+                <param name="motor_id">4</param>
+                <param name="motor_model">rs02</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <!-- shoulder_pitch_l: CAN id=2, RS-03 -->
+            <joint name="shoulder_pitch_l">
+                <param name="motor_id">12</param>
+                <param name="motor_model">rs03</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_l: CAN id=1, RS-03 -->
+            <joint name="shoulder_roll_l">
+                <param name="motor_id">11</param>
+                <param name="motor_model">rs03</param>
+                <param name="invert">true</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+            <joint name="elbow_yaw_l">
+                <param name="motor_id">13</param>
+                <param name="motor_model">rs02</param>
+                <command_interface name="position">
+                    <param name="min">-3.1416</param>
+                    <param name="max">3.1416</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>
+
+            <!-- shoulder_roll_r: CAN id=1, RS-03 -->
+            <joint name="elbow_pitch_l">
+                <param name="motor_id">14</param>
+                <param name="motor_model">rs02</param>
+                <command_interface name="position">
+                    <param name="min">-0.0873</param>
+                    <param name="max">3.3161</param>
+                </command_interface>
+                <state_interface name="position">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
+            </joint>

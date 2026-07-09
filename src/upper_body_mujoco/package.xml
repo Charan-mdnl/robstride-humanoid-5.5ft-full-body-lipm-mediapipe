@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>upper_body_mujoco</name>
+  <version>0.0.0</version>
+  <description>
+    MuJoCo simulation launch and configuration for the upper_body robot.
+    Uses mujoco_ros2_control to integrate ROS 2 Control with the MuJoCo physics engine.
+    All Gazebo files in the upper_body package remain untouched.
+  </description>
+  <maintainer email="user@robotics.com">user</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- Robot description (URDF + meshes) -->
+  <exec_depend>upper_body</exec_depend>
+
+  <!-- MuJoCo ROS 2 Control plugin & MoveIt config tools -->
+  <exec_depend>mujoco_ros2_control</exec_depend>
+  <exec_depend>moveit_configs_utils</exec_depend>
+
+  <!-- ROS 2 infrastructure -->
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>ros2_control</exec_depend>
+  <exec_depend>ros2_controllers</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+
+  <!-- Launch tools -->
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

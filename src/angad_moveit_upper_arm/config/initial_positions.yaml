@@ -1,0 +1,11 @@
+# Default initial positions for upper_body's ros2_control fake system
+
+initial_positions:
+  elbow_pitch_l: 0
+  elbow_pitch_r: 0
+  elbow_yaw_l: 0
+  elbow_yaw_r: 0
+  shoulder_pitch_l: 0
+  shoulder_pitch_r: 0
+  shoulder_roll_l: 0
+  shoulder_roll_r: 0

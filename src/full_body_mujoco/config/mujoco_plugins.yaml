@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    mujoco_plugins:
+      mocap_marker_plugin:
+        type: "full_body_mujoco/MujocoMarkerPlugin"

@@ -1,0 +1,41 @@
+lipm_walker:
+  ros__parameters:
+    # Robot physical parameters
+    hc: 0.55                  # CoM height [m]
+    mass: 25.0                # Total mass [kg]
+    gravity: 9.80665
+
+    # Control loop
+    dt: 0.02                  # Control timestep [s]  (= 1/control_frequency)
+    control_frequency: 50.0   # Hz
+    plan_frequency: 50.0      # Hz (trajectory index advance rate)
+
+    # Walking geometry
+    step_length: 0.05         # [m] per step
+    foot_separation: 0.10     # [m] half-width (centre to foot)
+    n_steps: 6                # Number of steps to take
+    Tss: 0.8                  # Single support duration [s]
+    Tds: 0.3                  # Double support duration [s]
+    MaxStepZ: 0.02            # Max foot lift height [m]
+
+    # MPC planner  (LIPMPlanner from humanoid_ws/lipm_motion)
+    mpc_q: 1.0                # ZMP tracking cost weight
+    mpc_r: 1.0e-6             # Jerk cost weight
+    mpc_Np: 100               # Prediction horizon (steps)
+
+    # DCM Admittance Control  (LIPMControl from humanoid_ws/lipm_control)
+    com_admittance_enabled: true
+    CoM_admittance_gain_x: 0.8
+    CoM_admittance_gain_y: 0.8
+    ZMP_proportional_gain_x: 2.0
+    ZMP_proportional_gain_y: 2.0
+    DCM_proportional_gain_x: 7.0
+    DCM_proportional_gain_y: 7.0
+    DCM_Integral_gain_x: 0.0
+    DCM_Integral_gain_y: 0.0
+
+    # Posture stabilizer  (postureStabilizer from humanoid_ws/lipm_control)
+    foot_damping_gain: 0.01
+    foot_damping_tc: 0.001
+    base_damping_gain: 0.01
+    base_damping_tc: 0.001
