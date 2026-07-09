@@ -1,0 +1,40 @@
+[package]
+name = "robstride-control"
+version = "1.0.0"
+edition = "2021"
+authors = ["tianrking"]
+description = "Rust implementation of tianrking motor control"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/tianrking/robstride-control"
+documentation = "https://docs.rs/robstride-control"
+readme = "README.md"
+keywords = ["motor", "control", "can", "robotics", "embedded"]
+categories = ["embedded", "hardware-support", "robotics"]
+
+[[bin]]
+name = "robstride-mit-position"
+path = "src/main.rs"
+
+[[bin]]
+name = "basic_control"
+path = "examples/basic_control.rs"
+
+[dependencies]
+socketcan = "3.5.0"
+ctrlc = { version = "3.5.1", features = ["termination"] }
+clap = { version = "4.0", features = ["derive"] }
+anyhow = "1.0"
+thiserror = "1.0"
+log = "0.4"
+env_logger = "0.10"
+
+[dev-dependencies]
+tempfile = "3.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+debug = true
