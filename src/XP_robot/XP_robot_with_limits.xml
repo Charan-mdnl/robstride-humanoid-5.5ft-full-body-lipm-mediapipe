@@ -1,0 +1,183 @@
+<mujoco model="XP_robot">
+    <compiler angle="radian" inertiafromgeom="true"/>
+    <option gravity="0 0 -9.81" timestep="0.002" />
+    <default>
+        <joint damping="0.60" frictionloss="0.052" armature="0.028"/>
+        <geom friction="0 9 9" />
+        <motor ctrlrange="-1 1"/>
+    </default>
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0" />
+        <rgba haze="0.15 0.25 0.35 1" />
+        <global azimuth="160" elevation="-20" />
+    </visual>
+    <asset>
+        <mesh name="pelvis" file="meshes/pelvis.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_r" file="meshes/hip_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_r" file="meshes/hip_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_r" file="meshes/thigh_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_r" file="meshes/leg_shank_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_r" file="meshes/uj_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_r" file="meshes/foot_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_pitch_l" file="meshes/hip_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="hip_roll_l" file="meshes/hip_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="thigh_l" file="meshes/thigh_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="leg_shank_l" file="meshes/leg_shank_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="uj_l" file="meshes/uj_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="foot_l" file="meshes/foot_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="torso" file="meshes/torso.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_r" file="meshes/shoulder_pitch_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_r" file="meshes/shoulder_roll_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_r" file="meshes/bicep_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_r" file="meshes/forearm_r.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_pitch_l" file="meshes/shoulder_pitch_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="shoulder_roll_l" file="meshes/shoulder_roll_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="bicep_l" file="meshes/bicep_l.stl" scale="0.001 0.001 0.001" />
+        <mesh name="forearm_l" file="meshes/forearm_l.stl" scale="0.001 0.001 0.001" />
+        <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="3072" />
+        <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300" />
+        <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5" reflectance="0.2" />
+    </asset>
+    <worldbody>
+        <light pos="0 0 3.5" dir="0 0 -1" directional="true" />
+        <geom name="floor" size="0 0 0.05" pos="0 0 0" type="plane" material="groundplane" friction="0 9 9"/>
+        <body name="pelvis" pos="0 0 0.75" euler="7.434101676923934e-15 5.1966226177108e-16 4.579669976578509e-16">
+            <joint name="root" type="free"/>
+            <geom name="pelvis_geom" type="mesh" mesh="pelvis" pos="0 0 0" euler="0 0 0" />
+            <inertial mass="15.659724776034766" pos="-7.29606112727438e-15 1.5375306520454904e-14 0.10941400188932553" fullinertia="0.06429912335642307 0.07731259878046515 0.042672230312617035 1.1593631023036643e-12 1.0709955056289965e-14 -2.6279247387682425e-14" />
+            <site name="imu_site" pos="0 0 0.1" size="0.01"/>
+            <body name="hip_pitch_r" pos="-0.07429334883240385 3.730349362740526e-16 0.06554994064500705" euler="3.1415926535897167 -1.3089969389957476 3.1415926535897176">
+                <joint name="pelvis_hip_pitch_r" type="hinge" axis="-8.852538416204148e-08 -2.309316979309804e-14 -1.0000001561184495" pos="-4.2817173068078577e-07 -4.961916519885317e-07 2.451458395055726e-07" range="-3.1416 3.1416" limited="true" />
+                <geom name="hip_pitch_r_geom" type="mesh" mesh="hip_pitch_r" pos="0 0 0" euler="0 0 0" />
+                <inertial mass="3.752356796369764" pos="-8.145108379972385e-05 0.003455409478961593 0.0727798603734389" fullinertia="0.004154780019016498 0.005873423212780768 0.0034959823712039373 2.0064418104471482e-07 2.26300058753931e-06 -6.583546749233627e-05" />
+                <body name="hip_roll_r" pos="-0.13822148861410427 2.1316282072803005e-16 0.114915933535439" euler="-3.1415926535897905 1.3089969389957454 1.5707963267948966">
+                    <joint name="hip_pitch_r_hip_roll_r" type="hinge" axis="0.9999999999999872 -2.702821676866793e-16 1.5819316188572898e-15" pos="0.022500496191652015 -2.1161545497469956e-07 0.14299966075464018" range="-2.35 0.292" limited="true" />
+                    <geom name="hip_roll_r_geom" type="mesh" mesh="hip_roll_r" pos="0 0 0" euler="0 0 0" />
+                    <inertial mass="4.649089697083715" pos="3.521068727200989e-05 -3.0370726292353276e-08 0.039675592040605064" fullinertia="0.008713881258396002 0.010370316482148742 0.0072097289800341965 -5.512998984239315e-10 -0.00013855263466724816 3.3197732938359377e-10" />
+                    <body name="thigh_r" pos="-0.01158404456177042 0.131793758759766 -0.16854375875976574" euler="-4.718447854656935e-15 4.163336342344113e-16 -4.579669976600986e-16">
+                        <joint name="hip_roll_r_thigh_yaw_r" type="hinge" axis="-9.484657866827639e-15 8.155513301723754e-15 -0.9999999999999906" pos="0.01158454075342267 -0.1317939703752198 0.16304341951440382" range="-3.1416 3.1416" limited="true" />
+                        <geom name="thigh_r_geom" type="mesh" mesh="thigh_r" pos="0 0 0" euler="0 0 0" />
+                        <inertial mass="6.408517719801384" pos="0.014371385144967368 -0.13462667004792245 -0.04238300671660662" fullinertia="0.04564547523402264 0.04875164550866873 0.008233196124715202 -4.907572744189407e-05 -0.0016178135654248726 -0.0007907362530646297" />
+                        <body name="leg_shank_r" pos="0.009975990523525873 0.017259521912797754 0.26582980767122116" euler="-0.0006942402103141342 -0.002815995927697519 1.571418618317232">
+                            <joint name="thigh_r_knee_r" type="hinge" axis="-0.9999995641753874 0.0006242463066960807 -0.0006942374019516626" pos="-0.17755887913938562 -0.0005042594903210918 -0.352912871872815" range="-1.5708 0.0000" limited="true" />
+                            <geom name="leg_shank_r_geom" type="mesh" mesh="leg_shank_r" pos="0 0 0" euler="0 0 0" />
+                            <inertial mass="4.162713814018899" pos="-0.1487227062514322 -0.004061142021100007 -0.5012262279573376" fullinertia="0.022968793478254583 0.024342736481764243 0.002625704909391936 1.013615765069372e-06 2.2942634420289708e-05 8.908044503319204e-05" />
+                            <body name="uj_r" pos="-0.14856686457142818 0.0006663191310974171 -0.7001451819329847" euler="0.0028155633344533605 -0.0006959924438836502 -1.571418616000642">
+                                <joint name="leg_shank_r_ankle_pitch_r" type="hinge" axis="-6.614742785112997e-16 0.9999999999999916 -3.747098760082966e-14" pos="-1.8831308071915577e-07 -0.017000209546335517 3.2369117542323185e-07" range="-0.6981 0.6981" limited="true" />
+                                <geom name="uj_r_geom" type="mesh" mesh="uj_r" pos="0 0 0" euler="0 0 0" />
+                                <inertial mass="0.09414317282487901" pos="1.1013297154415193e-10 -9.445088519781821e-14 -5.223380415188176e-05" fullinertia="1.0009741959979416e-05 8.642178920430087e-06 1.5635298753720258e-05 2.7327206977011346e-13 -2.9038879384558176e-14 7.061270124862607e-19" />
+                                <body name="foot_r" pos="0.02349999999999854 -1.2079226507921704e-15 -0.03098700442769353" euler="-4.030109579389403e-14 1.3322676295501894e-15 1.5707963267948948">
+                                    <joint name="uj_r_ankle_roll_r" type="hinge" axis="2.126730681792891e-15 -0.9999999999999895 -2.987464442494314e-11" pos="-2.095463357896194e-07 0.04050018831307826 0.030987328119375417" range="-0.3491 0.3491" limited="true" />
+                                    <geom name="foot_r_geom" type="mesh" mesh="foot_r" pos="0 0 0" euler="0 0 0" friction="1 5 5" />
+                                    <inertial mass="0.6231565492308647" pos="-6.582445536441543e-11 0.02074458988352475 -0.00047853708420997625" fullinertia="0.0008310694358130547 0.00027910262372903753 0.0009476674674812353 -2.319463568575582e-13 -2.45154823798304e-13 -3.336699140716564e-05" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <body name="hip_pitch_l" pos="0.07429334883240567 -8.881784197001253e-17 0.06554994064500817" euler="3.14159265358979 1.308996938995749 -3.141592653589793">
+                <joint name="pelvis_hip_pitch_l" type="hinge" axis="-8.852538604942062e-08 8.377904492348008e-16 1.000000156118479" pos="4.1513041113541997e-07 -4.961916518220153e-07 2.938167105072655e-07" range="-3.1416 3.1416" limited="true" />
+                <geom name="hip_pitch_l_geom" type="mesh" mesh="hip_pitch_l" pos="0 0 0" euler="0 0 0" />
+                <inertial mass="3.752356796369764" pos="-8.145108379940813e-05 0.003455409478961781 0.07277986037344328" fullinertia="0.0041547800190163955 0.005873423212779226 0.0034959823712033817 2.006441817464752e-07 2.2630005875085187e-06 -6.583546749233145e-05" />
+                <body name="hip_roll_l" pos="0.13803329770457196 -3.552713678800501e-17 0.1149159335354396" euler="-3.1415926535897905 -1.3089969389957468 1.5707963267948966">
+                    <joint name="hip_pitch_l_hip_roll_l" type="hinge" axis="0.9999999999999942 -3.4334950099242575e-15 4.677039642025962e-15" pos="0.022500496191653375 -4.453882573001029e-07 0.142999882294853" range="-0.292 2.35" limited="true" />
+                    <geom name="hip_roll_l_geom" type="mesh" mesh="hip_roll_l" pos="0 0 0" euler="0 0 0" />
+                    <inertial mass="4.649089697083715" pos="3.521068727195978e-05 -3.0370726218734407e-08 0.039675592040605064" fullinertia="0.008713881258396127 0.0103703164821497 0.0072097289800342225 -5.51300024548748e-10 -0.00013855263466725388 3.3197732759534866e-10" />
+                    <body name="thigh_l" pos="-0.011584044561769834 0.13179375875976493 -0.16854375875976707" euler="-5.773159728050823e-15 -1.7437419104515793e-15 1.0491606576435225e-15">
+                        <joint name="hip_roll_l_thigh_yaw_l" type="hinge" axis="-6.653319020812755e-15 4.0754436862263426e-15 -0.9999999999999933" pos="0.01158454075342477 -0.131794204148022 0.16304364105461808" range="-3.1416 3.1416" limited="true" />
+                        <geom name="thigh_l_geom" type="mesh" mesh="thigh_l" pos="0 0 0" euler="0 0 0" />
+                        <inertial mass="6.408517719801384" pos="0.014371385144968387 -0.13462667004792186 -0.042383006716607045" fullinertia="0.04564547523402357 0.048751645508668895 0.00823319612471633 -4.9075727443450414e-05 -0.0016178135654250783 -0.0007907362530645101" />
+                        <body name="leg_shank_l" pos="0.009975990523525926 0.0172595219127993 0.26582980767121756" euler="-0.0006942402103165538 -0.0028159959276972467 1.571418618317232">
+                            <joint name="thigh_l_knee_l" type="hinge" axis="-0.9999995641753895 0.0006242463066971527 -0.0006942374019511361" pos="-0.1775591130662797 -0.000504259968151666 -0.3529126504958212" range="-1.5708 0.0000" limited="true" />
+                            <geom name="leg_shank_l_geom" type="mesh" mesh="leg_shank_l" pos="0 0 0" euler="0 0 0" />
+                            <inertial mass="4.162713814018899" pos="-0.14872270625143463 -0.004061142021101356 -0.5012262279573292" fullinertia="0.02296879347827566 0.024342736481777046 0.002625704909387521 1.0136157693037207e-06 2.2942634424454904e-05 8.908044503516093e-05" />
+                            <body name="uj_l" pos="-0.14856686457143148 0.000666319131097648 -0.7001451819329944" euler="-3.138777090255343 0.0006959924438874757 -1.5701740375891495">
+                                <joint name="leg_shank_l_ankle_pitch_l" type="hinge" axis="1.3167829314048902e-15 0.9999999999999956 4.1823228219918566e-14" pos="1.883130783720575e-07 -0.017000443319136256 4.5476860425164746e-07" range="-0.6981 0.6981" limited="true" />
+                                <geom name="uj_l_geom" type="mesh" mesh="uj_l" pos="0 0 0" euler="0 0 0" />
+                                <inertial mass="0.09414317282487901" pos="1.1013297145209122e-10 -9.446445183559053e-14 -5.2233804151881626e-05" fullinertia="1.0009741959979467e-05 8.64217892042972e-06 1.563529875371844e-05 2.7327212949876537e-13 -2.903908700461043e-14 5.688031922953627e-19" />
+                                <body name="foot_l" pos="-0.02349999999999998 -1.0658141036401502e-15 0.03098700442769337" euler="-3.141592653589749 1.3877787807814444e-17 -1.5707963267948983">
+                                    <joint name="uj_l_ankle_roll_l" type="hinge" axis="-2.735531106487075e-15 -0.9999999999999931 -2.9877822438351125e-11" pos="-4.4331913653217393e-07 0.040500188313077584 0.030986549659595502" range="-0.3491 0.3491" limited="true" />
+                                    <geom name="foot_l_geom" type="mesh" mesh="foot_l" pos="0 0 0" euler="0 0 0"friction="1 5 5" />
+                                    <inertial mass="0.6231565492308647" pos="-6.582437243244742e-11 0.020744589883524896 -0.0004785370842099633" fullinertia="0.0008310694358130656 0.0002791026237290397 0.0009476674674812238 -2.319409975934801e-13 -2.45158552441828e-13 -3.336699140716448e-05" />
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+            <body name="torso" pos="2.6956215037898802e-15 -2.6645352591003756e-16 0.21308899999999995" euler="-1.3067543176751168e-16 -6.908216447360277e-16 -3.1415926535897913">
+                <joint name="pelvis_torso_yaw" type="hinge" axis="1.7115938296496252e-16 7.30342624515642e-15 -1.0" pos="4.7480610528352687e-07 4.961916504064808e-07 4.6361446304210945e-07" range="-3.1416 3.1416" limited="true" />
+                <geom name="torso_geom" type="mesh" mesh="torso" pos="0 0 0" euler="0 0 0" />
+                <inertial mass="7.920161324399533" pos="0.0021714977501299353 0.0013900312115490204 0.22276245814689774" fullinertia="0.13599394150171645 0.2007394017608754 0.11603157367795325 2.5556169911819583e-05 0.00037720779210066957 -0.0004773784243222092" />
+                <body name="shoulder_pitch_r" pos="0.22151654567782594 -0.004284142603247911 0.26546812441331424" euler="-1.5777218104420128e-30 -3.1744120968190713e-15 3.141592653589789">
+                    <joint name="torso_arm_pitch_r" type="hinge" axis="-1.0000000000000073 -1.887379141862805e-15 -3.0032527138541428e-15" pos="0.07550007087172106 -0.004284638794895595 0.02403433920114926" range="-3.1416 3.1416" limited="true" />
+                    <geom name="shoulder_pitch_r_geom" type="mesh" mesh="shoulder_pitch_r" pos="0 0 0" euler="0 0 0" />
+                    <inertial mass="3.684209229761108" pos="0.002177775301699102 -0.0019144172585735 0.024034142602100603" fullinertia="0.003265213890527411 0.00493185110220481 0.0036823909502094136 1.9052648594430357e-05 1.936284913667558e-13 -3.0066775502216772e-15" />
+                    <body name="shoulder_roll_r" pos="1.9343115198466877e-09 -0.002284142603247865 -0.08330485739675168" euler="-6.432110825398812e-16 -1.836531698087441e-15 -1.5707963267949945">
+                        <joint name="shoulder_pitch_r_arm_roll_r" type="hinge" axis="-1.0000000000000016 -9.972578318695469e-14 -6.6602151626165405e-15" pos="0.042250496191647974 6.893741336926193e-08 0.10733919659790164" range="-0.0873 3.3161" limited="true" />
+                        <geom name="shoulder_roll_r_geom" type="mesh" mesh="shoulder_roll_r" pos="0 0 0" euler="0 0 0" />
+                        <inertial mass="1.7449593504372773" pos="0.000374005430005947 -8.397473060307424e-07 0.02538637043917888" fullinertia="0.0013193923223462404 0.0017276614135961496 0.0015610880298233118 -5.467757835101787e-10 -5.348427522461505e-05 -3.500851170582446e-08" />
+                        <body name="bicep_r" pos="-0.006154939371236683 1.7763568394002506e-16 -0.035002442624483765" euler="1.7529497084364989e-15 3.938431143056312e-15 1.5707963267948957">
+                            <joint name="shoulder_roll_r_arm_yaw_r" type="hinge" axis="-1.4340380734865095e-16 -9.393574781372509e-15 -0.9999999999999982" pos="6.89374091274369e-08 -0.006155435562885255 0.031002639222385008" range="-3.1416 3.1416" limited="true" />
+                            <geom name="bicep_r_geom" type="mesh" mesh="bicep_r" pos="0 0 0" euler="0 0 0" />
+                            <inertial mass="2.349579544800282" pos="0.00046722194366737686 -0.004748830597517336 -0.09019708247680291" fullinertia="0.0037987703667937455 0.0036212941178819054 0.0016144612797763234 1.5504618085678684e-06 1.084521300466975e-05 -0.000205140327402952" />
+                            <body name="forearm_r" pos="-0.0036089650140997166 0.02836908859261639 -0.0989126196696263" euler="-5.174927538249829e-28 4.963704975580499e-15 9.924578180240676e-14">
+                                <joint name="bicep_r_elbow_r" type="hinge" axis="0.9999999999999998 6.106226635438425e-16 4.377476282910353e-15" pos="-0.028390966048494604 -0.034524524155503174 -0.0010847411079888205" range="-2.5307 0.0000" limited="true" />
+                                <geom name="forearm_r_geom" type="mesh" mesh="forearm_r" pos="0 0 0" euler="0 0 0" />
+                                <inertial mass="0.47751904516567073" pos="0.0031084759591276765 -0.03399968086006894 -0.10267594752007655" fullinertia="0.001221244139978594 0.001302019272384259 0.0003091280955542096 -1.253019036174163e-07 2.42794992278734e-05 -1.4023876748519303e-05" />
+                            </body>
+                        </body>
+                    </body>
+                </body>
+                <body name="shoulder_pitch_l" pos="-0.22151654567782444 -0.004284142603247716 0.31353640961980617" euler="3.141592653589793 5.245803791354097e-15 8.163540703054732e-16">
+                    <joint name="torso_arm_pitch_l" type="hinge" axis="0.9999999999999982 1.332267629550174e-15 5.074644408389136e-15" pos="0.07550002048392936 -0.0042846387948963695 0.02403394600534322" range="-3.1416 3.1416" limited="true" />
+                    <geom name="shoulder_pitch_l_geom" type="mesh" mesh="shoulder_pitch_l" pos="0 0 0" euler="0 0 0" />
+                    <inertial mass="3.684209229761108" pos="0.0021777753016991347 -0.0019144172585735 0.02403414260210036" fullinertia="0.003265213890529128 0.00493185110220473 0.0036823909502092635 1.9052648594423015e-05 1.9341573948263526e-13 -2.87689093957684e-15" />
+                    <body name="shoulder_roll_l" pos="-1.934303135442406e-09 -0.0022841426032473855 0.13137314260324728" euler="3.1415926535897927 4.64106494618965e-15 1.5707963267950065">
+                        <joint name="shoulder_pitch_l_arm_roll_l" type="hinge" axis="-1.000000000000001 1.109806690990922e-13 -8.01086406352284e-15" pos="0.04225049619164907 -2.2418236728550258e-08 0.1073391965979043" range="-3.3161 0.0873" limited="true" />
+                        <geom name="shoulder_roll_l_geom" type="mesh" mesh="shoulder_roll_l" pos="0 0 0" euler="0 0 0" />
+                        <inertial mass="1.7449593504372773" pos="0.0003740054300059487 -8.397473060554095e-07 0.02538637043917872" fullinertia="0.0013193923223462395 0.0017276614135957025 0.0015610880298233235 -5.467757874423161e-10 -5.348427522455977e-05 -3.500851163916597e-08" />
+                        <body name="bicep_l" pos="-0.006154939371236825 4.263256414560601e-16 -0.035002442624483335" euler="6.619674026496242e-16 3.938431143056287e-15 1.5707963267948972">
+                            <joint name="shoulder_roll_l_arm_yaw_l" type="hinge" axis="1.6190752439651264e-17 -1.216993319929453e-14 -0.9999999999999962" pos="-2.241823243082e-08 -0.006155435562886538 0.031002639222387173" range="-3.1416 3.1416" limited="true" />
+                            <geom name="bicep_l_geom" type="mesh" mesh="bicep_l" pos="0 0 0" euler="0 0 0" />
+                            <inertial mass="2.3495795448002803" pos="0.00046722194366736764 -0.004748830597517401 -0.09019708247680273" fullinertia="0.0037987703667931296 0.003621294117881849 0.0016144612797763173 1.5504618086185509e-06 1.0845213004627051e-05 -0.0002051403274028972" />
+                            <body name="forearm_l" pos="-0.0036089650140913323 0.028369088592611967 -0.09891261966963086" euler="4.954046484787949e-28 4.603892603338663e-15 -1.1128025924213773e-13">
+                                <joint name="bicep_l_elbow_l" type="hinge" axis="0.9999999999999971 2.6367796834848395e-16 4.375504662888927e-15" pos="-0.028391057404137273 -0.034524524155499316 -0.0010847411079825538" range="-2.5307 0.0000" limited="true" />
+                                <geom name="forearm_l_geom" type="mesh" mesh="forearm_l" pos="0 0 0" euler="0 0 0" />
+                                <inertial mass="0.47751904516567073" pos="0.003108475959127666 -0.03399968086006898 -0.10267594752007614" fullinertia="0.0012212441399784765 0.0013020192723842577 0.00030912809555420115 -1.2530190361610952e-07 2.4279499227887168e-05 -1.4023876748506516e-05" />
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+<actuator>
+    <motor name="hip_pitch_r" joint="pelvis_hip_pitch_r" ctrlrange="-1 1" gear="80"   />
+    <motor name="hip_roll_r" joint="hip_pitch_r_hip_roll_r" ctrlrange="-1 1" gear="60"  />
+    <motor name="thigh_yaw_r" joint="hip_roll_r_thigh_yaw_r" ctrlrange="-1 1" gear="60"  />
+    <motor name="knee_r" joint="thigh_r_knee_r" ctrlrange="-1 1" gear="120"  />
+    <motor name="ankle_pitch_r" joint="leg_shank_r_ankle_pitch_r" ctrlrange="-1 1" gear="17"  />
+    <motor name="ankle_roll_r" joint="uj_r_ankle_roll_r" ctrlrange="-1 1" gear="17"  />
+    <motor name="hip_pitch_l" joint="pelvis_hip_pitch_l" ctrlrange="-1 1" gear="80"  />
+    <motor name="hip_roll_l" joint="hip_pitch_l_hip_roll_l" ctrlrange="-1 1" gear="60"  />
+    <motor name="thigh_yaw_l" joint="hip_roll_l_thigh_yaw_l" ctrlrange="-1 1" gear="60"  />
+    <motor name="knee_l" joint="thigh_l_knee_l" ctrlrange="-1 1" gear="120"  />
+    <motor name="ankle_pitch_l" joint="leg_shank_l_ankle_pitch_l" ctrlrange="-1 1" gear="17"  />
+    <motor name="ankle_roll_l" joint="uj_l_ankle_roll_l" ctrlrange="-1 1" gear="17"  />
+    <motor name="torso_yaw" joint="pelvis_torso_yaw" ctrlrange="-1 1" gear="90"  />
+    <motor name="arm_pitch_r" joint="torso_arm_pitch_r" ctrlrange="-1 1" gear="60"  />
+    <motor name="arm_roll_r" joint="shoulder_pitch_r_arm_roll_r" ctrlrange="-1 1" gear="60"  />
+    <motor name="arm_yaw_r" joint="shoulder_roll_r_arm_yaw_r" ctrlrange="-1 1" gear="17"  />
+    <motor name="elbow_r" joint="bicep_r_elbow_r" ctrlrange="-1 1" gear="17"  />
+    <motor name="arm_pitch_l" joint="torso_arm_pitch_l" ctrlrange="-1 1" gear="60"  />
+    <motor name="arm_roll_l" joint="shoulder_pitch_l_arm_roll_l" ctrlrange="-1 1" gear="60"  />
+    <motor name="arm_yaw_l" joint="shoulder_roll_l_arm_yaw_l" ctrlrange="-1 1" gear="17"  />
+    <motor name="elbow_l" joint="bicep_l_elbow_l" ctrlrange="-1 1" gear="17"  />
+</actuator>
+<sensor>
+    <gyro name="imu_gyro" site="imu_site"/>
+    <accelerometer name="imu_acc" site="imu_site"/>
+</sensor>
+</mujoco>

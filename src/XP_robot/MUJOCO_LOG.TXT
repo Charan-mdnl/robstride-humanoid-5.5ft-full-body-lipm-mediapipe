@@ -1,0 +1,15 @@
+Tue Mar 31 10:47:07 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.9200.
+
+Sun Apr  5 11:53:04 2026
+WARNING: File size over 2GB is not supported. File: '/home/me/mujoco_ws/src/XP_robot'
+
+Sun Apr  5 11:53:35 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.9200.
+
+Sun Apr  5 11:53:49 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.9200.
+
+Sun Apr  5 11:56:28 2026
+WARNING: Nan, Inf or huge value in QACC at DOF 0. The simulation is unstable. Time = 0.9200.
+
