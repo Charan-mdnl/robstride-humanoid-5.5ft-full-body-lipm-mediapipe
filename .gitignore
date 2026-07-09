@@ -1,0 +1,23 @@
+# Ignore zip transfer folder
+TransferNow-20260707Yfo4rITl/
+
+# Ignore virtual environments
+**/venv/
+**/.venv/
+**/sysid_venv/
+
+# Ignore build artifacts and target directories
+**/build/
+**/install/
+**/log/
+**/target/
+
+# Ignore third-party downloaded libraries
+**/libtorch/
+
+# Ignore large PDF books
+**/biped book.pdf
+
+# OS specific files
+.DS_Store
+Thumbs.db
