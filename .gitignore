@@ -15,8 +15,6 @@ TransferNow-20260707Yfo4rITl/
 # Ignore third-party downloaded libraries
 **/libtorch/
 
-# Ignore large PDF books
-**/biped book.pdf
 
 # OS specific files
 .DS_Store
